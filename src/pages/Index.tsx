@@ -98,23 +98,45 @@ const Index = () => {
       {error && <p className="text-red-500">{error}</p>}
       <div className="mt-4">
         <h2 className="text-xl font-bold mb-2">Spotify Unique Songs</h2>
-        <ul>
-          {comparisonResults.spotifyUnique.map((song, index) => (
-            <li key={index} className="mb-2">
-              {song.title} by {song.artist}
-            </li>
-          ))}
-        </ul>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">Song Name</th>
+              <th className="py-2 px-4 border-b">Artist Name</th>
+              <th className="py-2 px-4 border-b">Album</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonResults.spotifyUnique.map((song, index) => (
+              <tr key={index}>
+                <td className="py-2 px-4 border-b">{song.title}</td>
+                <td className="py-2 px-4 border-b">{song.artist}</td>
+                <td className="py-2 px-4 border-b">{song.album}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="mt-4">
         <h2 className="text-xl font-bold mb-2">YouTube Unique Songs</h2>
-        <ul>
-          {comparisonResults.youtubeUnique.map((song, index) => (
-            <li key={index} className="mb-2">
-              {song.title} by {song.artist}
-            </li>
-          ))}
-        </ul>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">Song Name</th>
+              <th className="py-2 px-4 border-b">Artist Name</th>
+              <th className="py-2 px-4 border-b">Album</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonResults.youtubeUnique.map((song, index) => (
+              <tr key={index}>
+                <td className="py-2 px-4 border-b">{song.title}</td>
+                <td className="py-2 px-4 border-b">{song.artist}</td>
+                <td className="py-2 px-4 border-b">{song.album}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
