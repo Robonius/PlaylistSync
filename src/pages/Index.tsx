@@ -60,7 +60,20 @@ const Index = () => {
       setComparisonResults(comparisonResults);
     } catch (error) {
       console.error('Error syncing playlists:', error);
-      setError('Error syncing playlists. Please check the URLs and try again.');
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response:', error.response.data);
+        setError(`Error: ${error.response.data.error.message}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Error request:', error.request);
+        setError('No response received from the server. Please try again later.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+        setError(`Error: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
