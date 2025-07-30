@@ -47,7 +47,7 @@ const Index = () => {
 
       const youtubeSongs = youtubeData.items.map((item: any) => {
         const titleParts = item.snippet.title.split(' - ');
-        const artist = titleParts.length > 1 ? titleParts[0] : '';
+        const artist = titleParts.length > 1 ? titleParts[0] : item.snippet.videoOwnerChannelTitle;
         const title = titleParts.length > 1 ? titleParts[1] : item.snippet.title;
         return {
           title,
