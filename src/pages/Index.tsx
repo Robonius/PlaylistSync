@@ -28,7 +28,10 @@ const Index = () => {
       console.log('YouTube Playlist ID:', youtubePlaylistId);
 
       const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
+      console.log('Spotify Data:', spotifyData);
+
       const youtubeData = await getYouTubePlaylist(youtubePlaylistId);
+      console.log('YouTube Data:', youtubeData);
 
       const spotifySongs = spotifyData.tracks.items.map((item: any) => ({
         title: item.track.name,
