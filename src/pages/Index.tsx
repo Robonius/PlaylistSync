@@ -50,10 +50,11 @@ const Index = () => {
         let artist = titleParts.length > 1 ? titleParts[0] : item.snippet.videoOwnerChannelTitle;
         artist = artist.replace(' - Topic', ''); // Remove " - Topic" suffix
         const title = titleParts.length > 1 ? titleParts[1] : item.snippet.title;
+        const album = titleParts.length > 2 ? titleParts[2] : ''; // Attempt to extract album name
         return {
           title,
           artist,
-          album: '',
+          album,
           duration: 0,
           platformId: item.snippet.resourceId.videoId,
         };
