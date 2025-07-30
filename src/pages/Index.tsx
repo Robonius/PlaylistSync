@@ -21,8 +21,8 @@ const Index = () => {
       const spotifyPlaylistId = spotifyUrl.split('/').pop();
       const youtubePlaylistId = youtubeUrl.split('=').pop();
 
-      const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId, 'YOUR_SPOTIFY_ACCESS_TOKEN');
-      const youtubeData = await getYouTubePlaylist(youtubePlaylistId, 'YOUR_YOUTUBE_API_KEY');
+      const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
+      const youtubeData = await getYouTubePlaylist(youtubePlaylistId);
 
       const spotifySongs = spotifyData.tracks.items.map((item: any) => ({
         title: item.track.name,
