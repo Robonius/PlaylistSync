@@ -45,13 +45,18 @@ const Index = () => {
         platformId: item.track.id,
       }));
 
-      const youtubeSongs = youtubeData.items.map((item: any) => ({
-        title: item.snippet.title,
-        artist: item.snippet.videoOwnerChannelTitle,
-        album: '',
-        duration: 0,
-        platformId: item.snippet.resourceId.videoId,
-      }));
+      const youtubeSongs = youtubeData.items.map((item: any) => {
+        const titleParts = item.snippet.title.split(' - ');
+        const artist = titleParts.length > 1 ? titleParts[0] : '';
+        const title = titleParts.length > 1 ? titleParts[1] : item.snippet.title;
+        return {
+          title,
+          artist,
+          album: '',
+          duration: 0,
+          platformId: item.snippet.resourceId.videoId,
+        };
+      });
 
       setSpotifySongs(spotifySongs);
       setYoutubeSongs(youtubeSongs);
