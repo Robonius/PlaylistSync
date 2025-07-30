@@ -3,7 +3,7 @@ import axios from 'axios';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
-const SPOTIFY_ACCESS_TOKEN = 'YOUR_SPOTIFY_ACCESS_TOKEN'; // Replace with your actual Spotify access token
+const SPOTIFY_ACCESS_TOKEN = 'BQB17I22wJb0HKQZgONs6ejb2gOlKGqI4atZvW3MIP5Nm8uK-AzdJSqbgNJVn533k4HppdLJkVI83p9ydH4kU6xZ18ASo5oUkuvmffs9iDrEmc3fAMUsSe1yugqxE9iY9GlS_FZbZK0dEf2D9zk-DweeDzxBgRs2vnuK_TPK5nxQcdeQlELhpJ4fTVwMaOykTUdQ8pooV-DVOcv2WBGvrWvJuqUP1t7HrKDdLR_g7-BE3Iz_E3FOEPk0yBa5xuhkBC1wYSbtp3fErv5uwCwOVwDChccbbSmbPC6ufGgpJDVJJtWPR79B8Vk2bhL3auDbaPjXHCD2U6s4d0z-8IrZOR-JTPAUKtfX1FtCwSoAU5S4A0ZW6OUuEN'; // Replace with your actual Spotify access token
 const YOUTUBE_API_KEY = 'AIzaSyDBLYrojvGYTWUx7FkZ0eyzMxiYv1sbpQwEY'; // Replace with your actual YouTube API key
 
 const getSpotifyPlaylist = async (playlistId: string) => {
