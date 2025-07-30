@@ -18,8 +18,14 @@ const Index = () => {
     setLoading(true);
     setError('');
     try {
+      console.log('Spotify URL:', spotifyUrl);
+      console.log('YouTube URL:', youtubeUrl);
+
       const spotifyPlaylistId = spotifyUrl.split('/').pop();
       const youtubePlaylistId = youtubeUrl.split('=').pop();
+
+      console.log('Spotify Playlist ID:', spotifyPlaylistId);
+      console.log('YouTube Playlist ID:', youtubePlaylistId);
 
       const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
       const youtubeData = await getYouTubePlaylist(youtubePlaylistId);
@@ -46,6 +52,7 @@ const Index = () => {
       const comparisonResults = comparePlaylists(spotifySongs, youtubeSongs);
       setComparisonResults(comparisonResults);
     } catch (error) {
+      console.error('Error syncing playlists:', error);
       setError('Error syncing playlists. Please check the URLs and try again.');
     } finally {
       setLoading(false);
