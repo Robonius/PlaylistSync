@@ -4,7 +4,7 @@ const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
 const SPOTIFY_ACCESS_TOKEN = 'YOUR_SPOTIFY_ACCESS_TOKEN'; // Replace with your actual Spotify access token
-const YOUTUBE_API_KEY = 'YOUR_YOUTUBE_API_KEY'; // Replace with your actual YouTube API key
+const YOUTUBE_API_KEY = 'AIzaSyDBLYrojvGYTWUx7FkZ0eyzMxiYv1sbpQwEY'; // Replace with your actual YouTube API key
 
 const getSpotifyPlaylist = async (playlistId: string) => {
   try {
