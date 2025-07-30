@@ -88,7 +88,7 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-gray-900 text-white">
       <h1 className="text-2xl font-bold mb-4">Playlist Comparison</h1>
       <InputField label="Spotify Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} />
       <InputField label="YouTube Music Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} />
@@ -98,36 +98,36 @@ const Index = () => {
       {error && <p className="text-red-500">{error}</p>}
       <div className="mt-4">
         <h2 className="text-xl font-bold mb-2">Side-by-Side Comparison</h2>
-        <table className="min-w-full bg-white">
+        <table className="min-w-full bg-gray-800 text-white">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Spotify Song Name</th>
-              <th className="py-2 px-4 border-b">Spotify Artist Name</th>
-              <th className="py-2 px-4 border-b">Spotify Album</th>
-              <th className="py-2 px-4 border-b">YouTube Song Name</th>
-              <th className="py-2 px-4 border-b">YouTube Artist Name</th>
-              <th className="py-2 px-4 border-b">YouTube Album</th>
+              <th className="py-2 px-4 border-b border-gray-700">Spotify Song Name</th>
+              <th className="py-2 px-4 border-b border-gray-700">Spotify Artist Name</th>
+              <th className="py-2 px-4 border-b border-gray-700">Spotify Album</th>
+              <th className="py-2 px-4 border-b border-gray-700">YouTube Song Name</th>
+              <th className="py-2 px-4 border-b border-gray-700">YouTube Artist Name</th>
+              <th className="py-2 px-4 border-b border-gray-700">YouTube Album</th>
             </tr>
           </thead>
           <tbody>
             {comparisonResults.spotifyUnique.map((spotifySong, index) => (
               <tr key={index}>
-                <td className="py-2 px-4 border-b">{spotifySong.title}</td>
-                <td className="py-2 px-4 border-b">{spotifySong.artist}</td>
-                <td className="py-2 px-4 border-b">{spotifySong.album}</td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
+                <td className="py-2 px-4 border-b border-gray-700">{spotifySong.title}</td>
+                <td className="py-2 px-4 border-b border-gray-700">{spotifySong.artist}</td>
+                <td className="py-2 px-4 border-b border-gray-700">{spotifySong.album}</td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
               </tr>
             ))}
             {comparisonResults.youtubeUnique.map((youtubeSong, index) => (
               <tr key={index}>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b">{youtubeSong.title}</td>
-                <td className="py-2 px-4 border-b">{youtubeSong.artist}</td>
-                <td className="py-2 px-4 border-b">{youtubeSong.album}</td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
+                <td className="py-2 px-4 border-b border-gray-700"></td>
+                <td className="py-2 px-4 border-b border-gray-700">{youtubeSong.title}</td>
+                <td className="py-2 px-4 border-b border-gray-700">{youtubeSong.artist}</td>
+                <td className="py-2 px-4 border-b border-gray-700">{youtubeSong.album}</td>
               </tr>
             ))}
           </tbody>
