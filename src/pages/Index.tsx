@@ -27,6 +27,10 @@ const Index = () => {
       console.log('Spotify Playlist ID:', spotifyPlaylistId);
       console.log('YouTube Playlist ID:', youtubePlaylistId);
 
+      if (!spotifyPlaylistId || !youtubePlaylistId) {
+        throw new Error('Invalid playlist URLs. Please check the URLs and try again.');
+      }
+
       const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
       console.log('Spotify Data:', spotifyData);
 
