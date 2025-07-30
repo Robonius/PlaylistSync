@@ -60,6 +60,10 @@ const Index = () => {
         };
       });
 
+      // Sort the songs by artist name
+      spotifySongs.sort((a, b) => a.artist.localeCompare(b.artist));
+      youtubeSongs.sort((a, b) => a.artist.localeCompare(b.artist));
+
       setSpotifySongs(spotifySongs);
       setYoutubeSongs(youtubeSongs);
 
