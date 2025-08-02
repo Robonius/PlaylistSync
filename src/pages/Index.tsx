@@ -6,8 +6,8 @@ import { comparePlaylists } from '../utils/playlistComparison';
 import { exportToCSV } from '../utils/csvExport';
 
 const Index = () => {
-  const [spotifyUrl, setSpotifyUrl] = useState('');
-  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [spotifyUrl, setSpotifyUrl] = useState('https://open.spotify.com/playlist/6rxBkysajQ9fMM4a9Pl104');
+  const [youtubeUrl, setYoutubeUrl] = useState('https://music.youtube.com/playlist?list=PLt7bCmudeShKsk7MDN5_Vn8HUUv0rCNr4');
   const [spotifySongs, setSpotifySongs] = useState([]);
   const [youtubeSongs, setYoutubeSongs] = useState([]);
   const [comparisonResults, setComparisonResults] = useState({ spotifyUnique: [], youtubeUnique: [] });

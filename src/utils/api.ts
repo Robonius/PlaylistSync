@@ -3,7 +3,7 @@ import axios from 'axios';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
-const SPOTIFY_ACCESS_TOKEN = 'BQC0mxZFXwPXoaXDgDzTUvR_4NZZOChO0dllAPQcu8mll1AgVJ7OZtW6fWG198HWadBqU9kW69R6y3t6GPHmAj-MQfn_3Y67m2I86W3VtjqIRqazn_BPqiLKyTIGJmIuiY3P5i2kgePHhRreZhWGq1VftUJBUfDjL6cmBPe-yG2qdtb3nlAWSzXEYeMuDKZYXxB-Q7LjhuvtEM0QO9DzbhMJOmFINr6Ay3b5iBM3iRepvIyrvMxdpsqjZtLuu7ishIWTlT1bWeszbowuFly53sFpHd1di5zKUrr1r9POt9VG4hof_DjqEMGlN4XVIMBS0RxWNo9Lv72dr3MDun96OSvFzh6kbwFjBiPymXBLeNyrBx_vYCD2'; // Replace with your actual Spotify access token
+const SPOTIFY_ACCESS_TOKEN = 'BQAbrvQcv19m1rYtp9GwhEUyMhAttTJPl2T24Oyq9CfGrRzCeoXYj45h250SAzq_WFLCc9hEWR6NamIYly2cTJmSDQlHQioeOfQvFaBfqSl86jFDZlM6hNW43jYEDDcQru9W8mEsSnIGjdh41uyd5e7ksmJpbbJUsKeBP-nqGhI0htwdNhIg748_N8MZr856Mnvv4RyFJ8m1hEc3ds4m1VOBOdCTDu_GSU99Iyp8ex0mnNyvn6kUM94sM-4Jud4-hSyDVT1zgzGjFf5tf9HqHEllw8ACbDCZYSOmG0IOpSmuOySYgc1YqhJ1Qtg10GZEry-IeDZL3qfJZ9PcOCjKdr8QGsjYo7cnvAA9mH7O5w4SQtaGnEtb'; // Replace with your actual Spotify access token
 const YOUTUBE_API_KEY = 'AIzaSyDBLYrojvGYTWUx7FkZ0eyzMxiYv1sbpQw'; // Replace with your actual YouTube API key
 
 const getSpotifyPlaylist = async (playlistId: string) => {
