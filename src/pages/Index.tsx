@@ -13,6 +13,7 @@ const Index = () => {
   const [comparisonResults, setComparisonResults] = useState({ spotifyUnique: [], youtubeUnique: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState('both'); // 'spotify', 'youtube', 'both'
 
   const handleSyncPlaylists = async () => {
     setLoading(true);
@@ -109,48 +110,75 @@ const Index = () => {
         {loading && <p className="text-gray-500">Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="mt-4 flex space-x-4">
-          <div className="w-1/2">
-            <h2 className="text-xl font-bold mb-2">Spotify Playlist</h2>
-            <table className="min-w-full bg-gray-800 text-white">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b border-gray-700">Song Name</th>
-                  <th className="py-2 px-4 border-b border-gray-700">Artist Name</th>
-                  <th className="py-2 px-4 border-b border-gray-700">Album</th>
-                </tr>
-              </thead>
-              <tbody>
-                {spotifySongs.map((song, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.title}</td>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.artist}</td>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.album}</td>
+          <button
+            className={`px-4 py-2 rounded ${viewMode === 'spotify' ? 'bg-blue-500' : 'bg-gray-500'}`}
+            onClick={() => setViewMode('spotify')}
+            aria-pressed={viewMode === 'spotify'}
+          >
+            Show Spotify Playlist
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${viewMode === 'youtube' ? 'bg-blue-500' : 'bg-gray-500'}`}
+            onClick={() => setViewMode('youtube')}
+            aria-pressed={viewMode === 'youtube'}
+          >
+            Show YouTube Playlist
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${viewMode === 'both' ? 'bg-blue-500' : 'bg-gray-500'}`}
+            onClick={() => setViewMode('both')}
+            aria-pressed={viewMode === 'both'}
+          >
+            Show Both Playlists
+          </button>
+        </div>
+        <div className="mt-4 flex space-x-4">
+          {(viewMode === 'spotify' || viewMode === 'both') && (
+            <div className="w-1/2">
+              <h2 className="text-xl font-bold mb-2">Spotify Playlist</h2>
+              <table className="min-w-full bg-gray-800 text-white">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b border-gray-700">Song Name</th>
+                    <th className="py-2 px-4 border-b border-gray-700">Artist Name</th>
+                    <th className="py-2 px-4 border-b border-gray-700">Album</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="w-1/2">
-            <h2 className="text-xl font-bold mb-2">YouTube Music Playlist</h2>
-            <table className="min-w-full bg-gray-800 text-white">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b border-gray-700">Song Name</th>
-                  <th className="py-2 px-4 border-b border-gray-700">Artist Name</th>
-                  <th className="py-2 px-4 border-b border-gray-700">Album</th>
-                </tr>
-              </thead>
-              <tbody>
-                {youtubeSongs.map((song, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.title}</td>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.artist}</td>
-                    <td className="py-2 px-4 border-b border-gray-700">{song.album}</td>
+                </thead>
+                <tbody>
+                  {spotifySongs.map((song, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.title}</td>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.artist}</td>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.album}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {(viewMode === 'youtube' || viewMode === 'both') && (
+            <div className="w-1/2">
+              <h2 className="text-xl font-bold mb-2">YouTube Music Playlist</h2>
+              <table className="min-w-full bg-gray-800 text-white">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b border-gray-700">Song Name</th>
+                    <th className="py-2 px-4 border-b border-gray-700">Artist Name</th>
+                    <th className="py-2 px-4 border-b border-gray-700">Album</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {youtubeSongs.map((song, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.title}</td>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.artist}</td>
+                      <td className="py-2 px-4 border-b border-gray-700">{song.album}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
