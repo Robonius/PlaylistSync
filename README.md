@@ -1,60 +1,29 @@
-# 🎵 Playlist Comparison Tool
+# Playlist Sync Tool
 
-Welcome to the vibe.
+A React application to compare and sync playlists across Spotify, YouTube Music, and Amazon Music (via CSV).
 
-This is a seamless, client-side application that empowers users to sync, backup, and transfer their music playlists across different streaming platforms (Spotify, YouTube Music) and local formats (CSV), bypassing the need for expensive third-party subscription services.
+## Features
 
-## 🚀 Features
+- **Compare Playlists**: See which songs are unique to Spotify and which are unique to YouTube Music.
+- **Copy to Spotify**: Take missing songs from a YouTube playlist, search for them on Spotify, and add them to a newly created Spotify playlist.
+- **Copy to YouTube**: Take missing songs from a Spotify playlist, search for them on YouTube, and add them to a newly created YouTube playlist.
+- **CSV Export/Import**: Export your comparison results to a CSV file. You can also import a CSV file to act as one of the playlists.
 
-- **Cross-Platform Sync:** Read and diff playlists from Spotify and YouTube Music APIs.
-- **Massive Playlists:** Handles pagination to support massive tracklists.
-- **Bi-directional Sync:** Write missing tracks directly to Spotify and YouTube.
-- **Universal Bridge:** CSV Import/Export functionality to bypass API lockouts (like Amazon Music).
-- **Vibe Interface:** Modern, dark-mode, accessible UI built for music lovers and DJs.
+## API Authentication Requirements
 
-## 🏗️ Tech Stack
+To use the playlist copying features, you will need active API tokens:
 
-- **Framework:** React 18
-- **Language:** TypeScript
-- **Bundler:** Vite
-- **Styling:** Tailwind CSS
-- **Components:** shadcn/ui + Radix UI
-- **Routing:** React Router DOM (v6)
+### Spotify
+- **Spotify Access Token**: You need a valid Spotify OAuth token with scopes like `playlist-modify-public` and `playlist-modify-private`. Because these tokens expire quickly (typically in 1 hour), you must generate one and paste it into the UI.
 
-## 🛠️ Getting Started
+### YouTube Music
+- **YouTube API Key**: Note that while fetching public playlists can be done with a simple API key, **creating playlists and adding items requires an OAuth 2.0 token** with the `https://www.googleapis.com/auth/youtube` scope. When using the "Copy to YouTube" feature, paste your active OAuth token into the "YouTube API Key" field.
 
-### Prerequisites
+### Amazon Music
+- **Limitation**: Amazon Music does not provide a public API for developers to manage playlists.
+- **Workaround**: To compare or sync with Amazon Music, you must first export your Amazon Music playlist to a CSV file (using a third-party tool). You can then use the **Import CSV** feature in this app to load your Amazon Music songs, compare them against Spotify/YouTube, and copy them over.
 
-Ensure you have Node.js and `npm` installed.
+## Setup
 
-### Installation
-
-1. Clone the repository.
-2. Install dependencies:
-   `npm install`
-
-### Running the App
-
-Start the development server:
-`npm run dev`
-
-Build for production:
-`npm run build`
-
-Preview production build:
-`npm run preview`
-
-### Running Tests
-
-Execute the test suite using Vitest:
-`npm test`
-
-## 📝 Environment Variables
-
-To fully utilize the API integrations, you need to configure your access tokens.
-Note: Currently these are defined directly in `src/utils/api.ts` for ease of development, but should ideally be moved to an `.env` file in production:
-
-- `SPOTIFY_ACCESS_TOKEN`: Your Spotify API token.
-- `YOUTUBE_API_KEY`: Your YouTube Data API v3 key.
-
-Stay chill. Keep syncing. 🎧
+1. Run `pnpm install` to install dependencies.
+2. Run `pnpm run dev` to start the development server.

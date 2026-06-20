@@ -1,0 +1,6 @@
+🧹 Remove leftover console.log statements
+
+🎯 **What:** Removed leftover console.log statements in src/pages/Index.tsx and src/utils/api.ts while keeping the useful console.error logs.
+💡 **Why:** To improve code cleanliness, maintainability, and readability by reducing unneeded output to the browser console.
+✅ **Verification:** Ran npm run lint and npm run build to verify the application still compiles correctly without regressions.
+✨ **Result:** A cleaner console for users and developers.
