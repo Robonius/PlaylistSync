@@ -1,63 +1,86 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { searchSpotifyTrack } from '../api';
+import { addItemsToYouTubePlaylist } from '../api';
 
 vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
 
-describe('searchSpotifyTrack', () => {
+describe('addItemsToYouTubePlaylist', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
-  it('should return the first track if items are returned', async () => {
-    const mockData = {
-      data: {
-        tracks: {
-          items: [{ id: '1', name: 'Test Track' }, { id: '2', name: 'Second Track' }]
-        }
+  it('should not make any API requests if videoIds array is empty', async () => {
+    const playlistId = 'playlist-123';
+    const videoIds: string[] = [];
+    const token = 'fake-token';
+
+    await addItemsToYouTubePlaylist(playlistId, videoIds, token);
+
+    expect(axios.post).not.toHaveBeenCalled();
+  });
+
+  it('should make an API request for each videoId', async () => {
+    const playlistId = 'playlist-123';
+    const videoIds = ['video-1', 'video-2'];
+    const token = 'fake-token';
+
+    vi.mocked(axios.post).mockResolvedValue({ data: {} });
+
+    await addItemsToYouTubePlaylist(playlistId, videoIds, token);
+
+    expect(axios.post).toHaveBeenCalledTimes(2);
+    expect(axios.post).toHaveBeenNthCalledWith(
+      1,
+      'https://www.googleapis.com/youtube/v3/playlistItems',
+      {
+        snippet: {
+          playlistId: playlistId,
+          resourceId: {
+            kind: 'youtube#video',
+            videoId: 'video-1',
+          },
+        },
+      },
+      {
+        params: {
+          part: 'snippet',
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
-    mockedAxios.get.mockResolvedValueOnce(mockData);
-
-    const result = await searchSpotifyTrack('test query', 'test-token');
-
-    expect(result).toEqual({ id: '1', name: 'Test Track' });
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://api.spotify.com/v1/search',
-      expect.objectContaining({
-        params: { q: 'test query', type: 'track', limit: 1 },
-        headers: { Authorization: 'Bearer test-token' }
-      })
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      'https://www.googleapis.com/youtube/v3/playlistItems',
+      {
+        snippet: {
+          playlistId: playlistId,
+          resourceId: {
+            kind: 'youtube#video',
+            videoId: 'video-2',
+          },
+        },
+      },
+      {
+        params: {
+          part: 'snippet',
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
   });
 
-  it('should return null if no items are returned', async () => {
-    const mockData = {
-      data: {
-        tracks: {
-          items: []
-        }
-      }
-    };
-    mockedAxios.get.mockResolvedValueOnce(mockData);
+  it('should throw an error if the API request fails', async () => {
+    const playlistId = 'playlist-123';
+    const videoIds = ['video-1'];
+    const token = 'fake-token';
+    const error = new Error('API Error');
 
-    const result = await searchSpotifyTrack('test query', 'test-token');
+    vi.mocked(axios.post).mockRejectedValue(error);
 
-    expect(result).toBeNull();
-  });
-
-  it('should return null if axios throws an error', async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error('Network error'));
-
-    // Spy on console.error to avoid test output noise
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const result = await searchSpotifyTrack('test query', 'test-token');
-
-    expect(result).toBeNull();
-    expect(consoleSpy).toHaveBeenCalledWith('Error searching Spotify track:', expect.any(Error));
-
-    consoleSpy.mockRestore();
+    await expect(addItemsToYouTubePlaylist(playlistId, videoIds, token)).rejects.toThrow(error);
   });
 });
