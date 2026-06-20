@@ -42,3 +42,20 @@ const getYouTubePlaylist = async (playlistId: string) => {
 };
 
 export { getSpotifyPlaylist, getYouTubePlaylist };
+export const createSpotifyPlaylist = async (userId: string, name: string, token: string) => {
+  try {
+    const response = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+      name: name,
+      description: 'Imported by Playlist Comparison Tool',
+      public: false
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating Spotify playlist:', error);
+    throw error;
+  }
+};
