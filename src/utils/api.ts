@@ -8,13 +8,11 @@ const YOUTUBE_API_KEY = 'AIzaSyDBLYrojvGYTWUx7FkZ0eyzMxiYv1sbpQw'; // Replace wi
 
 const getSpotifyPlaylist = async (playlistId: string) => {
   try {
-    console.log('Fetching Spotify playlist with ID:', playlistId);
     const response = await axios.get(`${SPOTIFY_API_URL}/playlists/${playlistId}`, {
       headers: {
         Authorization: `Bearer ${SPOTIFY_ACCESS_TOKEN}`,
       },
     });
-    console.log('Spotify playlist response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching Spotify playlist:', error);
@@ -24,7 +22,6 @@ const getSpotifyPlaylist = async (playlistId: string) => {
 
 const getYouTubePlaylist = async (playlistId: string) => {
   try {
-    console.log('Fetching YouTube playlist with ID:', playlistId);
     const response = await axios.get(`${YOUTUBE_API_URL}/playlistItems`, {
       params: {
         part: 'snippet',
@@ -33,7 +30,6 @@ const getYouTubePlaylist = async (playlistId: string) => {
         maxResults: 50,
       },
     });
-    console.log('YouTube playlist response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching YouTube playlist:', error);

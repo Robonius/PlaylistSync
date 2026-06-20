@@ -19,26 +19,20 @@ const Index = () => {
     setLoading(true);
     setError('');
     try {
-      console.log('Spotify URL:', spotifyUrl);
-      console.log('YouTube URL:', youtubeUrl);
 
       const spotifyPlaylistId = spotifyUrl.split('/').pop();
       const youtubePlaylistId = youtubeUrl.split('=').pop();
 
-      console.log('Spotify Playlist ID:', spotifyPlaylistId);
-      console.log('YouTube Playlist ID:', youtubePlaylistId);
 
       if (!spotifyPlaylistId || !youtubePlaylistId) {
         throw new Error('Invalid playlist URLs. Please check the URLs and try again.');
       }
 
       const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
-      console.log('Spotify Data:', spotifyData);
 
       const youtubeData = await getYouTubePlaylist(youtubePlaylistId);
-      console.log('YouTube Data:', youtubeData);
 
-      const spotifySongs = spotifyData.tracks.items.map((item: any) => ({
+      const spotifySongs = spotifyData.tracks.items.map((item: unknown) => ({
         title: item.track.name,
         artist: item.track.artists[0].name,
         album: item.track.album.name,
@@ -46,7 +40,7 @@ const Index = () => {
         platformId: item.track.id,
       }));
 
-      const youtubeSongs = youtubeData.items.map((item: any) => {
+      const youtubeSongs = youtubeData.items.map((item: unknown) => {
         const titleParts = item.snippet.title.split(' - ');
         let artist = titleParts.length > 1 ? titleParts[0] : item.snippet.videoOwnerChannelTitle;
         artist = artist.replace(' - Topic', ''); // Remove " - Topic" suffix
