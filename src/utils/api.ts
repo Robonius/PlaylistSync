@@ -42,3 +42,22 @@ const getYouTubePlaylist = async (playlistId: string) => {
 };
 
 export { getSpotifyPlaylist, getYouTubePlaylist };
+export const searchSpotifyTrack = async (query: string, token: string) => {
+  try {
+    const response = await axios.get(`${SPOTIFY_API_URL}/search`, {
+      params: {
+        q: query,
+        type: 'track',
+        limit: 1
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const items = response.data.tracks.items;
+    return items.length > 0 ? items[0] : null;
+  } catch (error) {
+    console.error('Error searching Spotify track:', error);
+    return null;
+  }
+};
