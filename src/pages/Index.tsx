@@ -1,13 +1,37 @@
 import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
-import { getSpotifyPlaylist, getYouTubePlaylist } from '../utils/api';
+import { getSpotifyPlaylist, getYouTubePlaylist, createSpotifyPlaylist, addItemsToSpotifyPlaylist, searchSpotifyTrack, getSpotifyUserId, createYouTubePlaylist, addItemsToYouTubePlaylist, searchYouTubeTrack } from '../utils/api';
 import { comparePlaylists } from '../utils/playlistComparison';
 import { exportToCSV } from '../utils/csvExport';
+import { importFromCSV } from '../utils/csvImport';
+
+interface SpotifyTrackItem {
+  track: {
+    name: string;
+    artists: { name: string }[];
+    album: { name: string };
+    duration_ms: number;
+    id: string;
+  };
+}
+
+interface YouTubePlaylistItem {
+  snippet: {
+    title: string;
+    videoOwnerChannelTitle: string;
+    resourceId: {
+      videoId: string;
+    };
+  };
+}
+
 
 const Index = () => {
   const [spotifyUrl, setSpotifyUrl] = useState('https://open.spotify.com/playlist/6rxBkysajQ9fMM4a9Pl104');
   const [youtubeUrl, setYoutubeUrl] = useState('https://music.youtube.com/playlist?list=PLt7bCmudeShKsk7MDN5_Vn8HUUv0rCNr4');
+  const [spotifyToken, setSpotifyToken] = useState('');
+  const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [spotifySongs, setSpotifySongs] = useState([]);
   const [youtubeSongs, setYoutubeSongs] = useState([]);
   const [comparisonResults, setComparisonResults] = useState({ spotifyUnique: [], youtubeUnique: [] });
@@ -22,8 +46,21 @@ const Index = () => {
       console.log('Spotify URL:', spotifyUrl);
       console.log('YouTube URL:', youtubeUrl);
 
-      const spotifyPlaylistId = spotifyUrl.split('/').pop();
-      const youtubePlaylistId = youtubeUrl.split('=').pop();
+      let spotifyPlaylistId = '';
+      try {
+        const url = new URL(spotifyUrl);
+        spotifyPlaylistId = url.pathname.split('/').pop() || '';
+      } catch (e) {
+        spotifyPlaylistId = spotifyUrl.split('/').pop() || '';
+      }
+
+      let youtubePlaylistId = '';
+      try {
+        const url = new URL(youtubeUrl);
+        youtubePlaylistId = url.searchParams.get('list') || '';
+      } catch (e) {
+        youtubePlaylistId = youtubeUrl.split('=').pop() || '';
+      }
 
       console.log('Spotify Playlist ID:', spotifyPlaylistId);
       console.log('YouTube Playlist ID:', youtubePlaylistId);
@@ -32,13 +69,13 @@ const Index = () => {
         throw new Error('Invalid playlist URLs. Please check the URLs and try again.');
       }
 
-      const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId);
+      const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId, spotifyToken);
       console.log('Spotify Data:', spotifyData);
 
-      const youtubeData = await getYouTubePlaylist(youtubePlaylistId);
+      const youtubeData = await getYouTubePlaylist(youtubePlaylistId, youtubeApiKey);
       console.log('YouTube Data:', youtubeData);
 
-      const spotifySongs = spotifyData.tracks.items.map((item: any) => ({
+      const spotifySongs = spotifyData.tracks.items.map((item: SpotifyTrackItem) => ({
         title: item.track.name,
         artist: item.track.artists[0].name,
         album: item.track.album.name,
@@ -46,7 +83,7 @@ const Index = () => {
         platformId: item.track.id,
       }));
 
-      const youtubeSongs = youtubeData.items.map((item: any) => {
+      const youtubeSongs = youtubeData.items.map((item: YouTubePlaylistItem) => {
         const titleParts = item.snippet.title.split(' - ');
         let artist = titleParts.length > 1 ? titleParts[0] : item.snippet.videoOwnerChannelTitle;
         artist = artist.replace(' - Topic', ''); // Remove " - Topic" suffix
@@ -99,14 +136,145 @@ const Index = () => {
     exportToCSV(data, 'playlist_comparison.csv');
   };
 
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    try {
+      const data = await importFromCSV(file);
+
+      const importedSpotify: any[] = [];
+      const importedYouTube: any[] = [];
+
+      data.forEach((row: any) => {
+        const song = {
+          title: row.title || '',
+          artist: row.artist || '',
+          album: row.album || '',
+          duration: parseInt(row.duration) || 0,
+          platformId: row.platformId || ''
+        };
+
+        if (row.platform === 'Spotify') {
+          importedSpotify.push(song);
+        } else if (row.platform === 'YouTube') {
+          importedYouTube.push(song);
+        } else {
+          // If no platform specified, default to adding to both for sync purposes
+          importedSpotify.push(song);
+          importedYouTube.push(song);
+        }
+      });
+
+      setSpotifySongs(importedSpotify);
+      setYoutubeSongs(importedYouTube);
+
+      const comparisonResults = comparePlaylists(importedSpotify, importedYouTube);
+      setComparisonResults(comparisonResults);
+
+      alert('Successfully imported CSV!');
+    } catch (e: any) {
+      console.error(e);
+      setError(`Error importing CSV: ${e.message}`);
+    } finally {
+      setLoading(false);
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
+  const handleCopyToSpotify = async () => {
+    if (!spotifyToken) {
+      setError('Spotify Access Token is required to create playlists.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const userId = await getSpotifyUserId(spotifyToken);
+      const newPlaylist = await createSpotifyPlaylist(userId, 'Copied from YouTube', spotifyToken);
+
+      const trackUris: string[] = [];
+      for (const song of comparisonResults.youtubeUnique) {
+        const query = `${song.title} ${song.artist}`;
+        const result = await searchSpotifyTrack(query, spotifyToken);
+        if (result) {
+          trackUris.push(result.uri);
+        }
+      }
+
+      if (trackUris.length > 0) {
+        await addItemsToSpotifyPlaylist(newPlaylist.id, trackUris, spotifyToken);
+      }
+      alert('Successfully copied to Spotify!');
+    } catch (e: any) {
+      console.error(e);
+      setError(`Error copying to Spotify: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyToYouTube = async () => {
+    // Note: YouTube Data API v3 requires OAuth 2.0 for creating playlists, not just an API key.
+    // Assuming youtubeApiKey is an OAuth token for this operation.
+    if (!youtubeApiKey) {
+      setError('YouTube OAuth Token is required to create playlists.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const newPlaylist = await createYouTubePlaylist('Copied from Spotify', youtubeApiKey);
+
+      const videoIds: string[] = [];
+      for (const song of comparisonResults.spotifyUnique) {
+        const query = `${song.title} ${song.artist}`;
+        const result = await searchYouTubeTrack(query, youtubeApiKey);
+        if (result) {
+          videoIds.push(result.id.videoId);
+        }
+      }
+
+      if (videoIds.length > 0) {
+        await addItemsToYouTubePlaylist(newPlaylist.id, videoIds, youtubeApiKey);
+      }
+      alert('Successfully copied to YouTube!');
+    } catch (e: any) {
+      console.error(e);
+      setError(`Error copying to YouTube: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Playlist Comparison</h1>
         <InputField label="Spotify Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} />
+        <InputField label="Spotify Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} />
         <InputField label="YouTube Music Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} />
-        <Button label="Sync Playlists" onClick={handleSyncPlaylists} disabled={loading} />
-        <Button label="Export to CSV" onClick={handleExportToCSV} disabled={loading || !comparisonResults.spotifyUnique.length || !comparisonResults.youtubeUnique.length} />
+        <InputField label="YouTube API Key" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} />
+        <div className="flex gap-4 mb-4">
+          <Button label="Sync Playlists" onClick={handleSyncPlaylists} disabled={loading} />
+          <Button label="Export to CSV" onClick={handleExportToCSV} disabled={loading || (!comparisonResults.spotifyUnique.length && !comparisonResults.youtubeUnique.length)} />
+          <div>
+            <input
+              type="file"
+              accept=".csv"
+              style={{ display: 'none' }}
+              id="csv-upload"
+              onChange={handleImportCSV}
+            />
+            <label htmlFor="csv-upload">
+              <Button label="Import CSV" onClick={() => document.getElementById('csv-upload')?.click()} disabled={loading} />
+            </label>
+          </div>
+          <Button label="Copy to Spotify" onClick={handleCopyToSpotify} disabled={loading || !comparisonResults.youtubeUnique.length} />
+          <Button label="Copy to YouTube" onClick={handleCopyToYouTube} disabled={loading || !comparisonResults.spotifyUnique.length} />
+        </div>
         {loading && <p className="text-gray-500">Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="mt-4 flex space-x-4">
