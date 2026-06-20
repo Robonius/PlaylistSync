@@ -42,3 +42,27 @@ const getYouTubePlaylist = async (playlistId: string) => {
 };
 
 export { getSpotifyPlaylist, getYouTubePlaylist };
+export const createYouTubePlaylist = async (title: string, token: string) => {
+  try {
+    const response = await axios.post(`${YOUTUBE_API_URL}/playlists`, {
+      snippet: {
+        title: title,
+        description: 'Imported by Playlist Comparison Tool'
+      },
+      status: {
+        privacyStatus: 'private'
+      }
+    }, {
+      params: {
+        part: 'snippet,status',
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating YouTube playlist:', error);
+    throw error;
+  }
+};
