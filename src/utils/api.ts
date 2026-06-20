@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
-const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
+const SPOTIFY_API_URL = import.meta.env.VITE_SPOTIFY_API_URL || 'https://api.spotify.com/v1';
+const YOUTUBE_API_URL = import.meta.env.VITE_YOUTUBE_API_URL || 'https://www.googleapis.com/youtube/v3';
 
-const SPOTIFY_ACCESS_TOKEN = 'BQAbrvQcv19m1rYtp9GwhEUyMhAttTJPl2T24Oyq9CfGrRzCeoXYj45h250SAzq_WFLCc9hEWR6NamIYly2cTJmSDQlHQioeOfQvFaBfqSl86jFDZlM6hNW43jYEDDcQru9W8mEsSnIGjdh41uyd5e7ksmJpbbJUsKeBP-nqGhI0htwdNhIg748_N8MZr856Mnvv4RyFJ8m1hEc3ds4m1VOBOdCTDu_GSU99Iyp8ex0mnNyvn6kUM94sM-4Jud4-hSyDVT1zgzGjFf5tf9HqHEllw8ACbDCZYSOmG0IOpSmuOySYgc1YqhJ1Qtg10GZEry-IeDZL3qfJZ9PcOCjKdr8QGsjYo7cnvAA9mH7O5w4SQtaGnEtb'; // Replace with your actual Spotify access token
-const YOUTUBE_API_KEY = 'AIzaSyDBLYrojvGYTWUx7FkZ0eyzMxiYv1sbpQw'; // Replace with your actual YouTube API key
+const SPOTIFY_ACCESS_TOKEN = import.meta.env.VITE_SPOTIFY_ACCESS_TOKEN;
+const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 const getSpotifyPlaylist = async (playlistId: string) => {
   try {
