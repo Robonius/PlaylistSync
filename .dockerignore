@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.gitignore
+README.md
+SOUL.md
+GOALS.md
+AGENTS.md
+ARCHITECTURE.md
