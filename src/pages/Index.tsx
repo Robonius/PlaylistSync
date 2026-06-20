@@ -43,8 +43,6 @@ const Index = () => {
     setLoading(true);
     setError('');
     try {
-      console.log('Spotify URL:', spotifyUrl);
-      console.log('YouTube URL:', youtubeUrl);
 
       let spotifyPlaylistId = '';
       try {
@@ -62,8 +60,6 @@ const Index = () => {
         youtubePlaylistId = youtubeUrl.split('=').pop() || '';
       }
 
-      console.log('Spotify Playlist ID:', spotifyPlaylistId);
-      console.log('YouTube Playlist ID:', youtubePlaylistId);
 
       if (!spotifyPlaylistId || !youtubePlaylistId) {
         throw new Error('Invalid playlist URLs. Please check the URLs and try again.');
