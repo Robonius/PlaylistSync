@@ -9,6 +9,7 @@
 - The main page (default page) is src/pages/Index.tsx
 - UPDATE the main page to include the new components. OTHERWISE, the user can NOT see any components!
 - ALWAYS try to use the shadcn/ui library.
+- Docker / Docker Compose: use for environment consistency.
 - Tailwind CSS: always use Tailwind CSS for styling components. Utilize Tailwind classes extensively for layout, spacing, colors, and other design aspects.
 
 Available packages and libraries:
