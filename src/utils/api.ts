@@ -42,3 +42,24 @@ const getYouTubePlaylist = async (playlistId: string) => {
 };
 
 export { getSpotifyPlaylist, getYouTubePlaylist };
+export const addItemsToSpotifyPlaylist = async (playlistId: string, trackUris: string[], token: string) => {
+  try {
+    if (trackUris.length === 0) {
+      return;
+    }
+    // Spotify API accepts max 100 tracks per request
+    for (let i = 0; i < trackUris.length; i += 100) {
+      const chunk = trackUris.slice(i, i + 100);
+      await axios.post(`${SPOTIFY_API_URL}/playlists/${playlistId}/tracks`, {
+        uris: chunk
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error adding items to Spotify playlist:', error);
+    throw error;
+  }
+};
