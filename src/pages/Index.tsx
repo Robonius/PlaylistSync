@@ -5,6 +5,7 @@ import { getSpotifyPlaylist, getYouTubePlaylist, createSpotifyPlaylist, addItems
 import { comparePlaylists } from '../utils/playlistComparison';
 import { exportToCSV } from '../utils/csvExport';
 import { importFromCSV } from '../utils/csvImport';
+import { showSuccess } from '../utils/toast';
 
 interface SpotifyTrackItem {
   track: {
@@ -169,7 +170,7 @@ const Index = () => {
       const comparisonResults = comparePlaylists(importedSpotify, importedYouTube);
       setComparisonResults(comparisonResults);
 
-      alert('Successfully imported CSV!');
+      showSuccess('Successfully imported CSV!');
     } catch (e: any) {
       console.error(e);
       setError(`Error importing CSV: ${e.message}`);
@@ -203,7 +204,7 @@ const Index = () => {
       if (trackUris.length > 0) {
         await addItemsToSpotifyPlaylist(newPlaylist.id, trackUris, spotifyToken);
       }
-      alert('Successfully copied to Spotify!');
+      showSuccess('Successfully copied to Spotify!');
     } catch (e: any) {
       console.error(e);
       setError(`Error copying to Spotify: ${e.message}`);
@@ -236,7 +237,7 @@ const Index = () => {
       if (videoIds.length > 0) {
         await addItemsToYouTubePlaylist(newPlaylist.id, videoIds, youtubeApiKey);
       }
-      alert('Successfully copied to YouTube!');
+      showSuccess('Successfully copied to YouTube!');
     } catch (e: any) {
       console.error(e);
       setError(`Error copying to YouTube: ${e.message}`);
