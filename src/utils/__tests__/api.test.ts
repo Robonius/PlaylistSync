@@ -81,6 +81,8 @@ describe('addItemsToYouTubePlaylist', () => {
 
     vi.mocked(axios.post).mockRejectedValue(error);
 
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(addItemsToYouTubePlaylist(playlistId, videoIds, token)).rejects.toThrow(error);
+    consoleSpy.mockRestore();
   });
 });
