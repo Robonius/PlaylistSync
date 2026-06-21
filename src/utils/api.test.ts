@@ -49,7 +49,7 @@ describe('api.ts', () => {
         .rejects
         .toThrow('API Error');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Error creating YouTube playlist:', mockError);
+      expect(consoleSpy).toHaveBeenCalledWith('Error creating YouTube playlist:', mockError.message);
 
       consoleSpy.mockRestore();
     });
@@ -67,7 +67,7 @@ describe('api.ts', () => {
         .rejects
         .toThrow('Spotify API Error');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching Spotify playlist:', mockError);
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching Spotify playlist:', mockError.message);
 
       consoleSpy.mockRestore();
       logSpy.mockRestore();
@@ -86,7 +86,7 @@ describe('api.ts', () => {
         .rejects
         .toThrow('YouTube API Error');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching YouTube playlist:', mockError);
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching YouTube playlist:', mockError.message);
 
       consoleSpy.mockRestore();
       logSpy.mockRestore();
