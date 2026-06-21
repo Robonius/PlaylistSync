@@ -67,10 +67,8 @@ const Index = () => {
       }
 
       const spotifyData = await getSpotifyPlaylist(spotifyPlaylistId, spotifyToken);
-      console.log('Spotify Data:', spotifyData);
 
       const youtubeData = await getYouTubePlaylist(youtubePlaylistId, youtubeApiKey);
-      console.log('YouTube Data:', youtubeData);
 
       const spotifySongs = spotifyData.tracks.items.map((item: SpotifyTrackItem) => ({
         title: item.track.name,
@@ -104,21 +102,19 @@ const Index = () => {
 
       const comparisonResults = comparePlaylists(spotifySongs, youtubeSongs);
       setComparisonResults(comparisonResults);
-    } catch (error) {
-      console.error('Error syncing playlists:', error);
+    } catch (error: any) {
+      console.error('Error syncing playlists:', error instanceof Error ? error.message : 'Unknown error');
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.error('Error response:', error.response.data);
-        setError(`Error: ${error.response.data.error.message}`);
+        // Don't log full response data to prevent sensitive info leakage
+        setError('An error occurred with the API request. Please check your inputs and try again.');
       } else if (error.request) {
         // The request was made but no response was received
-        console.error('Error request:', error.request);
         setError('No response received from the server. Please try again later.');
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.error('Error message:', error.message);
-        setError(`Error: ${error.message}`);
+        setError('An unexpected error occurred during sync. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -172,8 +168,8 @@ const Index = () => {
 
       showSuccess('Successfully imported CSV!');
     } catch (e: any) {
-      console.error(e);
-      setError(`Error importing CSV: ${e.message}`);
+      console.error('Error importing CSV:', e instanceof Error ? e.message : 'Unknown error');
+      setError('An error occurred while importing the CSV file. Please check the file format.');
     } finally {
       setLoading(false);
       // Reset input
@@ -206,8 +202,8 @@ const Index = () => {
       }
       showSuccess('Successfully copied to Spotify!');
     } catch (e: any) {
-      console.error(e);
-      setError(`Error copying to Spotify: ${e.message}`);
+      console.error('Error copying to Spotify:', e instanceof Error ? e.message : 'Unknown error');
+      setError('An error occurred while copying to Spotify. Please check your token and try again.');
     } finally {
       setLoading(false);
     }
@@ -239,8 +235,8 @@ const Index = () => {
       }
       showSuccess('Successfully copied to YouTube!');
     } catch (e: any) {
-      console.error(e);
-      setError(`Error copying to YouTube: ${e.message}`);
+      console.error('Error copying to YouTube:', e instanceof Error ? e.message : 'Unknown error');
+      setError('An error occurred while copying to YouTube. Please check your token and try again.');
     } finally {
       setLoading(false);
     }
