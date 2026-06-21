@@ -7,12 +7,15 @@ interface Song {
 }
 
 const comparePlaylists = (spotifySongs: Song[], youtubeSongs: Song[]) => {
+  const youtubeSet = new Set(youtubeSongs.map((s) => `${s.title}|${s.artist}`));
+  const spotifySet = new Set(spotifySongs.map((s) => `${s.title}|${s.artist}`));
+
   const spotifyUnique = spotifySongs.filter(
-    (spotifySong) => !youtubeSongs.some((youtubeSong) => youtubeSong.title === spotifySong.title && youtubeSong.artist === spotifySong.artist)
+    (spotifySong) => !youtubeSet.has(`${spotifySong.title}|${spotifySong.artist}`)
   );
 
   const youtubeUnique = youtubeSongs.filter(
-    (youtubeSong) => !spotifySongs.some((spotifySong) => spotifySong.title === youtubeSong.title && spotifySong.artist === youtubeSong.artist)
+    (youtubeSong) => !spotifySet.has(`${youtubeSong.title}|${youtubeSong.artist}`)
   );
 
   return { spotifyUnique, youtubeUnique };

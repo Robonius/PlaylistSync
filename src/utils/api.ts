@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
-const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
+const SPOTIFY_API_URL = import.meta.env.VITE_SPOTIFY_API_URL || 'https://api.spotify.com/v1';
+const YOUTUBE_API_URL = import.meta.env.VITE_YOUTUBE_API_URL || 'https://www.googleapis.com/youtube/v3';
 
 
 const getSpotifyPlaylist = async (playlistId: string, spotifyToken: string) => {

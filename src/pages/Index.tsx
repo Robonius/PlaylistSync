@@ -6,6 +6,27 @@ import { comparePlaylists } from '../utils/playlistComparison';
 import { exportToCSV } from '../utils/csvExport';
 import { importFromCSV } from '../utils/csvImport';
 
+interface SpotifyTrackItem {
+  track: {
+    name: string;
+    artists: { name: string }[];
+    album: { name: string };
+    duration_ms: number;
+    id: string;
+  };
+}
+
+interface YouTubePlaylistItem {
+  snippet: {
+    title: string;
+    videoOwnerChannelTitle: string;
+    resourceId: {
+      videoId: string;
+    };
+  };
+}
+
+
 const Index = () => {
   const [spotifyUrl, setSpotifyUrl] = useState('https://open.spotify.com/playlist/6rxBkysajQ9fMM4a9Pl104');
   const [youtubeUrl, setYoutubeUrl] = useState('https://music.youtube.com/playlist?list=PLt7bCmudeShKsk7MDN5_Vn8HUUv0rCNr4');
@@ -22,8 +43,6 @@ const Index = () => {
     setLoading(true);
     setError('');
     try {
-      console.log('Spotify URL:', spotifyUrl);
-      console.log('YouTube URL:', youtubeUrl);
 
       let spotifyPlaylistId = '';
       try {
@@ -41,8 +60,6 @@ const Index = () => {
         youtubePlaylistId = youtubeUrl.split('=').pop() || '';
       }
 
-      console.log('Spotify Playlist ID:', spotifyPlaylistId);
-      console.log('YouTube Playlist ID:', youtubePlaylistId);
 
       if (!spotifyPlaylistId || !youtubePlaylistId) {
         throw new Error('Invalid playlist URLs. Please check the URLs and try again.');
@@ -54,7 +71,7 @@ const Index = () => {
       const youtubeData = await getYouTubePlaylist(youtubePlaylistId, youtubeApiKey);
       console.log('YouTube Data:', youtubeData);
 
-      const spotifySongs = spotifyData.tracks.items.map((item: any) => ({
+      const spotifySongs = spotifyData.tracks.items.map((item: SpotifyTrackItem) => ({
         title: item.track.name,
         artist: item.track.artists[0].name,
         album: item.track.album.name,
@@ -62,7 +79,7 @@ const Index = () => {
         platformId: item.track.id,
       }));
 
-      const youtubeSongs = youtubeData.items.map((item: any) => {
+      const youtubeSongs = youtubeData.items.map((item: YouTubePlaylistItem) => {
         const titleParts = item.snippet.title.split(' - ');
         let artist = titleParts.length > 1 ? titleParts[0] : item.snippet.videoOwnerChannelTitle;
         artist = artist.replace(' - Topic', ''); // Remove " - Topic" suffix
@@ -153,9 +170,9 @@ const Index = () => {
       setComparisonResults(comparisonResults);
 
       alert('Successfully imported CSV!');
-    } catch (e: unknown) {
+    } catch (e: any) {
       console.error(e);
-      setError(`Error importing CSV: ${e instanceof Error ? e.message : String(e)}`);
+      setError(`Error importing CSV: ${e.message}`);
     } finally {
       setLoading(false);
       // Reset input
@@ -187,9 +204,9 @@ const Index = () => {
         await addItemsToSpotifyPlaylist(newPlaylist.id, trackUris, spotifyToken);
       }
       alert('Successfully copied to Spotify!');
-    } catch (e: unknown) {
+    } catch (e: any) {
       console.error(e);
-      setError(`Error copying to Spotify: ${e instanceof Error ? e.message : String(e)}`);
+      setError(`Error copying to Spotify: ${e.message}`);
     } finally {
       setLoading(false);
     }
@@ -220,9 +237,9 @@ const Index = () => {
         await addItemsToYouTubePlaylist(newPlaylist.id, videoIds, youtubeApiKey);
       }
       alert('Successfully copied to YouTube!');
-    } catch (e: unknown) {
+    } catch (e: any) {
       console.error(e);
-      setError(`Error copying to YouTube: ${e instanceof Error ? e.message : String(e)}`);
+      setError(`Error copying to YouTube: ${e.message}`);
     } finally {
       setLoading(false);
     }
