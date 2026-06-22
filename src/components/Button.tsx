@@ -1,20 +1,23 @@
 import React from 'react';
+import { Button as ShadcnButton } from "@/components/ui/button";
 
 interface ButtonProps {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
 
-const Button: React.FC<ButtonProps> = ({ label, onClick, disabled = false }) => {
+const Button: React.FC<ButtonProps> = ({ label, onClick, disabled = false, variant = "default" }) => {
   return (
-    <button
+    <ShadcnButton
       onClick={onClick}
       disabled={disabled}
-      className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      variant={variant}
+      className="rounded-none font-mono uppercase tracking-widest text-xs"
     >
       {label}
-    </button>
+    </ShadcnButton>
   );
 };
 
