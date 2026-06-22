@@ -247,9 +247,9 @@ const Index = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Playlist Comparison</h1>
         <InputField label="Spotify Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} />
-        <InputField label="Spotify Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} />
+        <InputField label="Spotify Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} type="password" />
         <InputField label="YouTube Music Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} />
-        <InputField label="YouTube API Key" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} />
+        <InputField label="YouTube API Key" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} type="password" />
         <div className="flex gap-4 mb-4">
           <Button label="Sync Playlists" onClick={handleSyncPlaylists} disabled={loading} />
           <Button label="Export to CSV" onClick={handleExportToCSV} disabled={loading || (!comparisonResults.spotifyUnique.length && !comparisonResults.youtubeUnique.length)} />
