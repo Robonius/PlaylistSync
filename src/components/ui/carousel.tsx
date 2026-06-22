@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
@@ -109,7 +110,7 @@ const Carousel = React.forwardRef<
         return;
       }
 
-      onSelect(api);
+            onSelect(api);
       api.on("reInit", onSelect);
       api.on("select", onSelect);
 
