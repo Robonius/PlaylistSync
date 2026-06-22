@@ -32,27 +32,34 @@ To use the playlist copying features, you will need active API tokens:
 
 This project is fully containerized for both development and production.
 
-### Local Development
-To start the development server with Hot Module Replacement (HMR):
-```bash
-docker-compose up dev
-```
-The app will be available at [http://localhost:5173](http://localhost:5173).
+### Using the Published Image (Recommended)
+The easiest way to run the application is using the pre-built Docker image published to the GitHub Container Registry (GHCR).
 
-### Local Production Build
-To test the production build locally (served by Nginx):
-```bash
-docker-compose up prod
-```
-The app will be available at [http://localhost:8080](http://localhost:8080).
+1. **Pull and run the latest image:**
+   ```bash
+   docker-compose up prod
+   ```
+   The app will be available at [http://localhost:8080](http://localhost:8080).
+
+### Local Development & Custom Builds
+If you are making changes to the code and want to test them locally, use the build-specific compose file.
+
+1. **Start the development server with Hot Module Replacement (HMR):**
+   ```bash
+   docker-compose -f docker-compose.build.yml up dev
+   ```
+   The app will be available at [http://localhost:5173](http://localhost:5173).
+
+2. **Test a local production build:**
+   ```bash
+   docker-compose -f docker-compose.build.yml up prod-local
+   ```
+   The app will be available at [http://localhost:8081](http://localhost:8081).
 
 ### Automated Publishing
-Every push to the `main` branch triggers a GitHub Action that:
-1. Builds a production-ready Docker image.
-2. Publishes it to the GitHub Container Registry (GHCR).
-3. Tags the image with `latest` and the specific commit SHA.
+Every push to the `main` branch triggers a GitHub Action that builds and publishes a production-ready Docker image to GHCR.
 
-You can pull the latest image using:
-```bash
-docker pull ghcr.io/${GITHUB_REPOSITORY}:latest
-```
+**How to verify the image is published:**
+1. **GitHub Actions:** Check the [Actions tab](https://github.com/Robonius/PlaylistSync/actions) for the "Docker Publish" workflow status.
+2. **GitHub Packages:** Navigate to the "Packages" section on the repository's home page (or your profile's packages) to see `playlistsync`.
+3. **Manual Pull:** Run `docker pull ghcr.io/robonius/playlistsync:latest` to verify accessibility.
