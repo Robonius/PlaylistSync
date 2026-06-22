@@ -1,4 +1,4 @@
-## 2025-05-18 - Axios Error Object Leakage
-**Vulnerability:** Raw Axios error objects (`error`) were being logged to `console.error()`.
-**Learning:** In Axios, the `error` object includes the request `config`, which contains the HTTP headers sent with the request (including `Authorization: Bearer <token>`). Logging the full error object inadvertently leaks sensitive tokens/API keys into the browser console or application logs.
-**Prevention:** Never log the raw `error` object or `error.config` when making authenticated requests. Always sanitize the log by logging specific safe properties (e.g., `error.message`) or by avoiding logging the full error object directly. User-facing errors should also be sanitized instead of directly exposing API response details.
+## 2024-05-19 - [Mask Sensitive Token Inputs in UI]
+**Vulnerability:** Input fields for sensitive tokens like "Spotify Access Token" and "YouTube API Key" were using `type="text"`, which exposed these values as plaintext on the screen.
+**Learning:** Hardcoded text inputs for API keys and tokens expose credentials to shoulder-surfing or screen-sharing risks. We must ensure UI components support password masking and explicitly enable them for sensitive variables.
+**Prevention:** Always use `type="password"` or implement a secure input component for user-provided secrets, tokens, or passwords to prevent plaintext leakage in the client-side UI.

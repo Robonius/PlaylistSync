@@ -10,6 +10,7 @@ To create a seamless, client-side application that empowers users to sync, backu
 - [x] Write missing tracks to Spotify and YouTube.
 - [x] CSV Import/Export as a universal bridge (and specifically to bypass the Amazon Music API lockout).
 - [x] Modern, dark-mode, accessible UI using React + shadcn/ui.
+- [x] Implement Dockerization and automated CI/CD for image publishing.
 
 ## Long-Term Vision (The Future)
 - **Apple Music Integration:** Add MusicKit JS support.

@@ -27,3 +27,32 @@ To use the playlist copying features, you will need active API tokens:
 
 1. Run `pnpm install` to install dependencies.
 2. Run `pnpm run dev` to start the development server.
+
+## Docker & Deployment
+
+This project is fully containerized for both development and production.
+
+### Local Development
+To start the development server with Hot Module Replacement (HMR):
+```bash
+docker-compose up dev
+```
+The app will be available at [http://localhost:5173](http://localhost:5173).
+
+### Local Production Build
+To test the production build locally (served by Nginx):
+```bash
+docker-compose up prod
+```
+The app will be available at [http://localhost:8080](http://localhost:8080).
+
+### Automated Publishing
+Every push to the `main` branch triggers a GitHub Action that:
+1. Builds a production-ready Docker image.
+2. Publishes it to the GitHub Container Registry (GHCR).
+3. Tags the image with `latest` and the specific commit SHA.
+
+You can pull the latest image using:
+```bash
+docker pull ghcr.io/${GITHUB_REPOSITORY}:latest
+```
