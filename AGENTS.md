@@ -21,7 +21,7 @@ Welcome, fellow agent. If you are reading this, you are tasked with expanding or
    - Utility functions (API calls, parsers) go in `src/utils/`.
 3. **Routing:** `src/App.tsx` is the source of truth for routes. If you add a new page, register it there BEFORE the catch-all `*` route.
 4. **Styling:** Always use Tailwind CSS for styling components. Use the `cn()` utility from `src/lib/utils.ts` for conditionally merging Tailwind classes.
-5. **Infrastructure Consistency:** Use the provided Docker configurations (`Dockerfile`, `docker-compose.yml`) to ensure local development matches the production environment.
+5. **Infrastructure Consistency:** Use the provided Docker configurations (`Dockerfile`, `docker-compose.yml and docker-compose.build.yml`) to ensure local development matches the production environment.
 
 ## UI / UX Directives
 - **shadcn/ui first:** We already have Radix UI primitives and shadcn components installed. Use them. If you need a new shadcn component, look in `src/components/ui/` first to see if it exists. DO NOT edit the files inside `src/components/ui/` directly; they are considered vendor files.
