@@ -11,5 +11,6 @@ This tool is built by and for **vibe coders**—those who want their code to flo
 - **Keep it smooth:** UI should be dark, moody, and instantly understandable. (Shoutout to Tailwind & shadcn).
 - **Keep it open:** Export to CSV. Import from CSV. Data is meant to flow freely.
 - **Let the AI cook:** We leverage AI to write the boilerplate so we can focus on the *feeling* of the app. Future vibe coders (human or agent) should find this codebase welcoming, well-typed, and easy to jam with.
+- **Containerized Vibes:** We believe in "build once, run anywhere." By containerizing our app, we ensure that every vibe coder, whether human or AI, starts with the exact same perfect setup.
 
 Stay chill. Keep syncing. 🎧

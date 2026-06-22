@@ -24,5 +24,6 @@ For a "vibe coder" building a fast, client-side, API-heavy tool, the chosen stac
   - *Recommendation for future agents:* Refactor `Index.tsx` by breaking the UI into smaller components (e.g., `<PlaylistTable />`, `<ControlPanel />`) and move state management to a custom hook (e.g., `usePlaylistSync()`).
   - *Fuzzy Matching:* The current comparison relies on exact string matching (`youtubeSong.title === spotifySong.title`). This will fail if YouTube has "Song Name (Official Video)" and Spotify has "Song Name". Implementing a Levenshtein distance or generalized fuzzy search would vastly improve the sync accuracy.
 
-## Should we look into Docker?
-**Yes.** While Vite is easy to run via Node/pnpm, local environments differ. Setting up Docker ensures that any human or AI agent can spin up the exact same environment with zero node-version-manager headaches. We will implement Docker next.
+## Containerization & CI/CD
+
+We utilize a multi-stage Docker build to ensure environment consistency across development and production. Our CI/CD pipeline, powered by GitHub Actions, automatically builds and publishes the production image to the GitHub Container Registry (GHCR) upon every push to the `main` branch. This approach eliminates "it works on my machine" issues and simplifies deployment.
