@@ -9,6 +9,17 @@ A React application to compare and sync playlists across Spotify, YouTube Music,
 - **Copy to YouTube**: Take missing songs from a Spotify playlist, search for them on YouTube, and add them to a newly created YouTube playlist.
 - **CSV Export/Import**: Export your comparison results to a CSV file. You can also import a CSV file to act as one of the playlists.
 
+## Tech Stack & Standards
+
+- **Runtime**: Node.js 24 (Standard for production Docker images).
+- **Framework**: React 18 + Vite.
+- **Routing**: React Router v7.
+- **Package Manager**: `pnpm` v11+ (Note: Build permissions must be configured in `pnpm-workspace.yaml`).
+- **Security Standards**:
+    - **CSV Export**: All data fields starting with `=`, `+`, `-`, or `@` are sanitized with a single quote to prevent injection vulnerabilities.
+    - **Credential Masking**: All UI fields handling secrets or tokens strictly use `type="password"`.
+    - **Error Handling**: Raw Axios errors are sanitized to prevent sensitive header leakage in logs.
+
 ## API Authentication Requirements
 
 To use the playlist copying features, you will need active API tokens:

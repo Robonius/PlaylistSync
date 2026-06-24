@@ -1,8 +1,8 @@
 # Tech Stack
 
-- You are building a React application.
-- Use TypeScript.
-- Use React Router. KEEP the routes in src/App.tsx
+- You are building a React application using Node.js 24.
+- Use TypeScript (strict typing preferred).
+- Use React Router v7. KEEP the routes in src/App.tsx
 - Always put source code in the src folder.
 - Put pages into src/pages/
 - Put components into src/components/
@@ -11,8 +11,16 @@
 - ALWAYS try to use the shadcn/ui library.
 - Docker / Docker Compose: use for environment consistency.
 - Tailwind CSS: always use Tailwind CSS for styling components. Utilize Tailwind classes extensively for layout, spacing, colors, and other design aspects.
+- Package Manager: strictly use `pnpm` v11+.
 
-Available packages and libraries:
+# UI/UX & Security Standards
+
+- Accessibility: add ARIA labels to icon-only buttons and ensure keyboard accessibility.
+- Credential Masking: use `type="password"` for all sensitive input fields (secrets, tokens, API keys).
+- Logging: sanitize error logs; never log raw Axios errors or sensitive headers.
+- CSV Export: sanitize data fields to prevent formula injection.
+
+# Available packages and libraries
 
 - The lucide-react package is installed for icons.
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.

@@ -5,12 +5,14 @@ To create a seamless, client-side application that empowers users to sync, backu
 
 ## Short-Term Goals (The Now)
 - [x] Read playlists from Spotify and YouTube Music APIs.
-- [x] Handle pagination to support massive playlists (because 50 songs ain't enough).
+- [x] Handle pagination to support massive playlists.
 - [x] Diff playlists to find missing tracks.
 - [x] Write missing tracks to Spotify and YouTube.
-- [x] CSV Import/Export as a universal bridge (and specifically to bypass the Amazon Music API lockout).
+- [x] CSV Import/Export as a universal bridge (with formula injection protection).
 - [x] Modern, dark-mode, accessible UI using React + shadcn/ui.
 - [x] Implement Dockerization and automated CI/CD for image publishing.
+- [x] Robust Runtime Environment Variable Injection for Docker production images.
+- [x] Testing suite setup with Vitest and Playwright.
 
 ## Long-Term Vision (The Future)
 - **Apple Music Integration:** Add MusicKit JS support.
