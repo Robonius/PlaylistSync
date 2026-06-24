@@ -7,9 +7,10 @@ interface InputFieldProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
+  placeholder?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = "text" }) => {
+const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = "text", placeholder }) => {
   const id = useId();
   return (
     <div className="grid w-full items-center gap-1.5 mb-4">
@@ -21,6 +22,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = 
         type={type}
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
         className="rounded-none border-border bg-background font-mono focus-visible:ring-primary"
       />
     </div>
