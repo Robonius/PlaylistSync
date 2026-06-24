@@ -27,5 +27,12 @@ RUN pnpm run build
 # Production server
 FROM nginx:alpine AS prod
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Add custom entrypoint for runtime env vars
+COPY docker/entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 80
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
