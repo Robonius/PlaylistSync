@@ -3,13 +3,15 @@
 Welcome, fellow agent. If you are reading this, you are tasked with expanding or maintaining this codebase. Please adhere to the following rules to maintain the vibe and structure.
 
 ## Tech Stack Overview
+- **Runtime:** Node.js 24
 - **Framework:** React 18
 - **Language:** TypeScript (Strict typing preferred)
 - **Bundler:** Vite
 - **Styling:** Tailwind CSS
 - **Components:** shadcn/ui + Radix UI
-- **Routing:** React Router DOM (v6)
+- **Routing:** React Router v7
 - **State/Query Management:** React hook state for now, but `@tanstack/react-query` is installed if you need it.
+- **Package Manager:** `pnpm` v11+ (Note: Build permissions must be configured in `pnpm-workspace.yaml`).
 - **Containerization:** Docker / Docker Compose
 - **CI/CD:** GitHub Actions (for Docker publishing)
 
@@ -25,8 +27,20 @@ Welcome, fellow agent. If you are reading this, you are tasked with expanding or
 
 ## UI / UX Directives
 - **shadcn/ui first:** We already have Radix UI primitives and shadcn components installed. Use them. If you need a new shadcn component, look in `src/components/ui/` first to see if it exists. DO NOT edit the files inside `src/components/ui/` directly; they are considered vendor files.
+- **Accessibility:**
+    - Always add ARIA labels to icon-only buttons.
+    - Ensure keyboard accessibility (focus states, tab order).
+    - Use the React `useId()` hook to link form inputs with labels.
 - **Dark Mode:** The app defaults to a dark theme. Keep text highly legible (e.g., `text-white` on `bg-gray-900`).
 - **Icons:** Use `lucide-react`.
+- **Notifications:** Use the toast notification system (`src/utils/toast.ts`) instead of native browser `alert()`.
+
+## Security & Logging Standards
+- **Masking:** Always use `type="password"` for fields handling secrets, tokens, or API keys.
+- **Sanitization:**
+    - Never log raw error objects or `error.message` from network requests directly to the console.
+    - Standardize error handling to sanitize Axios errors (preventing `Authorization` header leakage) before logging or throwing.
+    - Sanitize CSV exports by prepending a single quote (`'`) to any field starting with `=`, `+`, `-`, or `@`.
 
 ## Pre-Commit Verification
 - Always run `pnpm run lint` and `pnpm run build` to verify your TypeScript and ESLint rules before submitting changes.
