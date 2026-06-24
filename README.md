@@ -27,6 +27,7 @@ To use the playlist copying features, you will need active API tokens:
 
 1. Run `pnpm install` to install dependencies.
 2. Run `pnpm run dev` to start the development server.
+3. Create a `.env` file from `.env.example` and add your API keys.
 
 ## Docker & Deployment
 
