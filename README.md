@@ -63,3 +63,9 @@ Every push to the `main` branch triggers a GitHub Action that builds and publish
 1. **GitHub Actions:** Check the [Actions tab](https://github.com/Robonius/PlaylistSync/actions) for the "Docker Publish" workflow status.
 2. **GitHub Packages:** Navigate to the "Packages" section on the repository's home page (or your profile's packages) to see `playlistsync`.
 3. **Manual Pull:** Run `docker pull ghcr.io/robonius/playlistsync:latest` to verify accessibility.
+
+## Local Testing with Remote Docker Images
+
+For instructions on how to test the production Docker images pulled from GHCR locally, see [Personal_Testing.md](./Personal_Testing.md).
+
+The project supports runtime environment variable injection for Docker containers, allowing you to use your own API keys without rebuilding the image.
