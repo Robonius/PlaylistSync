@@ -1,5 +1,24 @@
 import axios from 'axios';
 
+// Security enhancement: Prevent sensitive data leakage (like Authorization headers in error.config) by sanitizing Axios errors
+const sanitizeError = (error: any) => {
+  if (axios.isAxiosError(error)) {
+    const sanitizedError: any = new Error(error.message);
+    // Keep response and request properties for UI error handling, but strip the config which holds headers
+    if (error.response) {
+      sanitizedError.response = {
+        status: error.response.status,
+        data: error.response.data,
+      };
+    }
+    if (error.request) {
+      sanitizedError.request = true;
+    }
+    return sanitizedError;
+  }
+  return error;
+};
+
 const SPOTIFY_API_URL = import.meta.env.VITE_SPOTIFY_API_URL || 'https://api.spotify.com/v1';
 const YOUTUBE_API_URL = import.meta.env.VITE_YOUTUBE_API_URL || 'https://www.googleapis.com/youtube/v3';
 
@@ -24,7 +43,7 @@ const getSpotifyPlaylist = async (playlistId: string, spotifyToken: string) => {
     return { tracks: { items: allItems } };
   } catch (error) {
     console.error('Error fetching Spotify playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -52,7 +71,7 @@ const getYouTubePlaylist = async (playlistId: string, youtubeApiKey: string) => 
     return { items: allItems };
   } catch (error) {
     console.error('Error fetching YouTube playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -73,7 +92,7 @@ export const createSpotifyPlaylist = async (userId: string, name: string, token:
     return response.data;
   } catch (error) {
     console.error('Error creating Spotify playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -92,7 +111,7 @@ export const addItemsToSpotifyPlaylist = async (playlistId: string, trackUris: s
     }
   } catch (error) {
     console.error('Error adding items to Spotify playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -126,7 +145,7 @@ export const getSpotifyUserId = async (token: string) => {
     return response.data.id;
   } catch (error) {
     console.error('Error getting Spotify user ID:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -153,7 +172,7 @@ export const createYouTubePlaylist = async (title: string, token: string) => {
     return response.data;
   } catch (error) {
     console.error('Error creating YouTube playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -179,7 +198,7 @@ export const addItemsToYouTubePlaylist = async (playlistId: string, videoIds: st
     }
   } catch (error) {
     console.error('Error adding items to YouTube playlist:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
