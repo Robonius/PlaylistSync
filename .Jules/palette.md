@@ -1,3 +1,3 @@
-## 2024-05-14 - Add placeholder attributes to input fields
-**Learning:** Adding helpful placeholder text (like example URLs or dot characters for tokens) clarifies the expected input format without cluttering the UI or requiring extra helper text. This is a simple but highly effective micro-UX improvement for configuration-heavy forms.
-**Action:** When creating or modifying inputs in forms (especially ones expecting specific formats like URLs or keys), always consider adding placeholder text. Ensure reusable wrapper components (like `InputField`) accept and pass through a `placeholder` prop.
+## 2024-06-25 - [Form Required Indicators and Alerts]
+**Learning:** Adding `required` props and visible asterisks to custom form components, along with `role="alert"` and `aria-live="assertive"` to dynamically rendered error messages, significantly improves the base accessibility of forms without disrupting existing layout constraints. The Shadcn UI-based inputs accept standard aria attributes well.
+**Action:** Always check if critical form inputs clearly convey their required status visually and programmatically. Always ensure dynamic error states use live regions to notify assistive technologies.

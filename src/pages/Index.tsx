@@ -224,8 +224,8 @@ const Index = () => {
                       <Music2 className="h-4 w-4" />
                       <span className="text-[10px] font-bold uppercase">Spotify Endpoint</span>
                     </div>
-                    <InputField label="Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} placeholder="https://open.spotify.com/playlist/..." />
-                    <InputField label="Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" />
+                    <InputField label="Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} placeholder="https://open.spotify.com/playlist/..." required />
+                    <InputField label="Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" required />
                   </div>
 
                   <div className="p-3 border bg-muted/50">
@@ -233,8 +233,8 @@ const Index = () => {
                       <Youtube className="h-4 w-4" />
                       <span className="text-[10px] font-bold uppercase">YouTube Endpoint</span>
                     </div>
-                    <InputField label="Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/playlist?list=..." />
-                    <InputField label="OAuth Token" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" />
+                    <InputField label="Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/playlist?list=..." required />
+                    <InputField label="OAuth Token" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" required />
                   </div>
                 </div>
 
@@ -248,7 +248,7 @@ const Index = () => {
                 </Button>
 
                 {error && (
-                  <div className="p-3 border-l-2 border-primary bg-primary/5 flex items-start gap-2">
+                  <div className="p-3 border-l-2 border-primary bg-primary/5 flex items-start gap-2" role="alert" aria-live="assertive">
                     <AlertCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                     <p className="text-[10px] uppercase text-primary font-bold">{error}</p>
                   </div>
