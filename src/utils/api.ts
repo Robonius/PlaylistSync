@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getEnv } from './env';
+import { sanitizeError } from './sanitizeError';
 
 // These URLs can be customized at runtime but have sensible defaults.
 const SPOTIFY_API_URL = getEnv('VITE_SPOTIFY_API_URL', 'https://api.spotify.com/v1');
@@ -33,7 +34,7 @@ const getSpotifyPlaylist = async (playlistId: string, spotifyToken: string) => {
     return { tracks: { items: allItems } };
   } catch (error) {
     console.error('Error fetching Spotify playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -62,7 +63,7 @@ const getYouTubePlaylist = async (playlistId: string, youtubeApiKey: string) => 
     return { items: allItems };
   } catch (error) {
     console.error('Error fetching YouTube playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -85,7 +86,7 @@ export const createSpotifyPlaylist = async (userId: string, name: string, token:
     return response.data;
   } catch (error) {
     console.error('Error creating Spotify playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -105,7 +106,7 @@ export const addItemsToSpotifyPlaylist = async (playlistId: string, trackUris: s
     }
   } catch (error) {
     console.error('Error adding items to Spotify playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -141,7 +142,7 @@ export const getSpotifyUserId = async (token: string) => {
     return response.data.id;
   } catch (error) {
     console.error('Error getting Spotify user ID');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -169,7 +170,7 @@ export const createYouTubePlaylist = async (title: string, token: string) => {
     return response.data;
   } catch (error) {
     console.error('Error creating YouTube playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
@@ -196,7 +197,7 @@ export const addItemsToYouTubePlaylist = async (playlistId: string, videoIds: st
     }
   } catch (error) {
     console.error('Error adding items to YouTube playlist');
-    throw error;
+    throw sanitizeError(error);
   }
 };
 
