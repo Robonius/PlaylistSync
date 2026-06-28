@@ -280,16 +280,14 @@ const Index = () => {
                     id="csv-upload"
                     onChange={handleImportCSV}
                   />
-                  <label htmlFor="csv-upload" className="w-full">
-                    <Button
-                      variant="outline"
-                      onClick={() => document.getElementById('csv-upload')?.click()}
-                      disabled={loading}
-                      className="rounded-none uppercase text-[10px] justify-start gap-2 w-full"
-                    >
-                      <Upload className="h-3 w-3" /> Import CSV Data
-                    </Button>
-                  </label>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('csv-upload')?.click()}
+                    disabled={loading}
+                    className="rounded-none uppercase text-[10px] justify-start gap-2 w-full"
+                  >
+                    <Upload className="h-3 w-3" /> Import CSV Data
+                  </Button>
                 </div>
 
                 <Separator className="my-2" />
@@ -368,7 +366,13 @@ const Index = () => {
                           <TableBody>
                             {spotifySongs.length === 0 ? (
                               <TableRow>
-                                <TableCell colSpan={3} className="text-center py-20 text-muted-foreground uppercase text-[10px]">No source data loaded</TableCell>
+                                <TableCell colSpan={3} className="text-center py-20">
+                                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                                    <Music2 className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                    <div className="uppercase text-[10px] font-bold">No source data loaded</div>
+                                    <div className="text-[10px] max-w-[200px] opacity-70">Enter a Spotify playlist URL and execute sync to populate data</div>
+                                  </div>
+                                </TableCell>
                               </TableRow>
                             ) : (
                               spotifySongs.map((song, i) => {
@@ -417,7 +421,13 @@ const Index = () => {
                           <TableBody>
                             {youtubeSongs.length === 0 ? (
                               <TableRow>
-                                <TableCell colSpan={3} className="text-center py-20 text-muted-foreground uppercase text-[10px]">No destination data loaded</TableCell>
+                                <TableCell colSpan={3} className="text-center py-20">
+                                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                                    <Youtube className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                    <div className="uppercase text-[10px] font-bold">No destination data loaded</div>
+                                    <div className="text-[10px] max-w-[200px] opacity-70">Enter a YouTube playlist URL and execute sync to populate data</div>
+                                  </div>
+                                </TableCell>
                               </TableRow>
                             ) : (
                               youtubeSongs.map((song, i) => {
@@ -489,9 +499,9 @@ const Index = () => {
             © 2024 Dyad Industrial Systems // Playlist Synchronization Module
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors">Documentation</a>
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors">API Status</a>
+            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Documentation</a>
+            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Privacy</a>
+            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">API Status</a>
           </div>
         </div>
       </footer>
