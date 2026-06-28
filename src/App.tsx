@@ -6,18 +6,24 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Documentation from "./pages/Documentation";
+import Privacy from "./pages/Privacy";
+import ApiStatus from "./pages/ApiStatus";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="dyad-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="robolab-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/documentation" element={<Documentation />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/api-status" element={<ApiStatus />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
