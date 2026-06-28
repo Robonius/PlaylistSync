@@ -1,0 +1,3 @@
+## 2024-03-20 - [Avoid Nesting Interactive Elements (Button inside Label)]
+**Learning:** Placing an interactive `<Button>` inside an HTML `<label>` is a WCAG violation (nested interactive controls). It can cause assistive technologies to fail to interact with the button correctly and can lead to double-triggering events (one click on the button, one on the label).
+**Action:** When creating a custom file upload button, trigger the hidden `<input type="file">` programmatically via the button's `onClick` handler (e.g., `document.getElementById('csv-upload')?.click()`) instead of wrapping the button in a `<label>`.
