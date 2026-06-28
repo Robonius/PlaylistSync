@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import {
   getSpotifyPlaylist,
@@ -198,7 +199,7 @@ const Index = () => {
             <div className="bg-primary p-1">
               <RefreshCw className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-sm font-bold uppercase tracking-tighter">Dyad // Sync</span>
+            <span className="text-sm font-bold uppercase tracking-tighter">RoboLab // Sync</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -496,12 +497,12 @@ const Index = () => {
       <footer className="border-t py-4 bg-muted/20">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            © 2024 Dyad Industrial Systems // Playlist Synchronization Module
+            © 2026 RoboLab Systems // Playlist Synchronization Module
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Documentation</a>
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Privacy</a>
-            <a href="#" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">API Status</a>
+            <Link to="/documentation" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Documentation</Link>
+            <Link to="/privacy" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">Privacy</Link>
+            <Link to="/api-status" className="text-[10px] uppercase font-bold hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">API Status</Link>
           </div>
         </div>
       </footer>
