@@ -47,10 +47,10 @@ services:
     ports:
       - "8080:80"
     environment:
-      - VITE_SPOTIFY_API_URL=https://api.spotify.com/v1
-      - VITE_YOUTUBE_API_URL=https://www.googleapis.com/youtube/v3
-      - VITE_SPOTIFY_ACCESS_TOKEN=your_token_here
-      - VITE_YOUTUBE_API_KEY=your_key_here
+      - ROBOLAB_SPOTIFY_API_URL=https://api.spotify.com/v1
+      - ROBOLAB_YOUTUBE_API_URL=https://www.googleapis.com/youtube/v3
+      - ROBOLAB_SPOTIFY_ACCESS_TOKEN=your_token_here
+      - ROBOLAB_YOUTUBE_API_KEY=your_key_here
     restart: always
 ```
 
@@ -74,7 +74,7 @@ When the container is running, verify the following:
 ## 5. Why this works (Technical Note)
 
 Standard Vite apps "bake" environment variables into the static JS files at build time. To allow you to change API keys **without rebuilding the image**, we use a custom entrypoint (`docker/entrypoint.sh`) that:
-1. Reads all `VITE_` variables from the container environment.
+1. Reads all `ROBOLAB_` variables from the container environment.
 2. Generates a `env-config.js` file inside the container.
 3. Injects this script into `index.html`.
 4. The app uses `src/utils/env.ts` to prioritize these runtime values.

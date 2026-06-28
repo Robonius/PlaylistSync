@@ -1,83 +1,72 @@
-# Playlist Sync Tool
+# RoboLab // Playlist Sync
 
-A React application to compare and sync playlists across Spotify, YouTube Music, and Amazon Music (via CSV).
+A high-precision React application for synchronizing and comparing playlists across Spotify and YouTube Music. Designed for developers and power users who need full control over their musical metadata.
 
-## Features
+## 🚀 Quick Start
 
-- **Compare Playlists**: See which songs are unique to Spotify and which are unique to YouTube Music.
-- **Copy to Spotify**: Take missing songs from a YouTube playlist, search for them on Spotify, and add them to a newly created Spotify playlist.
-- **Copy to YouTube**: Take missing songs from a Spotify playlist, search for them on YouTube, and add them to a newly created YouTube playlist.
-- **CSV Export/Import**: Export your comparison results to a CSV file. You can also import a CSV file to act as one of the playlists.
-
-## Tech Stack & Standards
-
-- **Runtime**: Node.js 24 (Standard for production Docker images).
-- **Framework**: React 18 + Vite.
-- **Routing**: React Router v7.
-- **Package Manager**: `pnpm` v11+ (Note: Build permissions must be configured in `pnpm-workspace.yaml`).
-- **Security Standards**:
-    - **CSV Export**: All data fields starting with `=`, `+`, `-`, or `@` are sanitized with a single quote to prevent injection vulnerabilities.
-    - **Credential Masking**: All UI fields handling secrets or tokens strictly use `type="password"`.
-    - **Error Handling**: Raw Axios errors are sanitized to prevent sensitive header leakage in logs.
-
-## API Authentication Requirements
-
-To use the playlist copying features, you will need active API tokens:
-
-### Spotify
-- **Spotify Access Token**: You need a valid Spotify OAuth token with scopes like `playlist-modify-public` and `playlist-modify-private`. Because these tokens expire quickly (typically in 1 hour), you must generate one and paste it into the UI.
-
-### YouTube Music
-- **YouTube API Key**: Note that while fetching public playlists can be done with a simple API key, **creating playlists and adding items requires an OAuth 2.0 token** with the `https://www.googleapis.com/auth/youtube` scope. When using the "Copy to YouTube" feature, paste your active OAuth token into the "YouTube API Key" field.
-
-### Amazon Music
-- **Limitation**: Amazon Music does not provide a public API for developers to manage playlists.
-- **Workaround**: To compare or sync with Amazon Music, you must first export your Amazon Music playlist to a CSV file (using a third-party tool). You can then use the **Import CSV** feature in this app to load your Amazon Music songs, compare them against Spotify/YouTube, and copy them over.
-
-## Setup
-
-1. Run `pnpm install` to install dependencies.
-2. Run `pnpm run dev` to start the development server.
-3. Create a `.env` file from `.env.example` and add your API keys.
-
-## Docker & Deployment
-
-This project is fully containerized for both development and production.
-
-### Using the Published Image (Recommended)
-The easiest way to run the application is using the pre-built Docker image published to the GitHub Container Registry (GHCR).
-
-1. **Pull and run the latest image:**
+1. **Install Dependencies**:
    ```bash
-   docker-compose up prod
+   pnpm install
    ```
-   The app will be available at [http://localhost:8080](http://localhost:8080).
-
-### Local Development & Custom Builds
-If you are making changes to the code and want to test them locally, use the build-specific compose file.
-
-1. **Start the development server with Hot Module Replacement (HMR):**
+2. **Configure Environment**:
+   Copy `.env.example` to `.env`. All variables MUST be prefixed with `ROBOLAB_`.
    ```bash
-   docker-compose -f docker-compose.build.yml up dev
+   cp .env.example .env
    ```
-   The app will be available at [http://localhost:5173](http://localhost:5173).
-
-2. **Test a local production build:**
+3. **Start Development**:
    ```bash
-   docker-compose -f docker-compose.build.yml up prod-local
+   pnpm run dev
    ```
-   The app will be available at [http://localhost:8081](http://localhost:8081).
+   Access the system at `http://localhost:8080`.
 
-### Automated Publishing
-Every push to the `main` branch triggers a GitHub Action that builds and publishes a production-ready Docker image to GHCR.
+## 🔐 Authentication Setup
 
-**How to verify the image is published:**
-1. **GitHub Actions:** Check the [Actions tab](https://github.com/Robonius/PlaylistSync/actions) for the "Docker Publish" workflow status.
-2. **GitHub Packages:** Navigate to the "Packages" section on the repository's home page (or your profile's packages) to see `playlistsync`.
-3. **Manual Pull:** Run `docker pull ghcr.io/robonius/playlistsync:latest` to verify accessibility.
+This application uses **OAuth 2.0 with PKCE** for secure, client-side authentication.
 
-## Local Testing with Remote Docker Images
+### 1. Spotify Setup
+1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+2. Create a new App.
+3. In the App settings, add your **Redirect URI** (e.g., `http://localhost:8080`).
+4. Copy the **Client ID** and add it to your `.env` as `ROBOLAB_SPOTIFY_CLIENT_ID`.
 
-For instructions on how to test the production Docker images pulled from GHCR locally, see [Personal_Testing.md](./Personal_Testing.md).
+### 2. Google / YouTube Setup
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project.
+3. Enable the **YouTube Data API v3**.
+4. Go to **APIs & Services > OAuth consent screen** and configure it for "External" usage.
+5. Go to **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**.
+6. Select **Web application**.
+7. Add your **Authorized redirect URIs** (e.g., `http://localhost:8080`).
+8. Copy the **Client ID** and add it to your `.env` as `ROBOLAB_GOOGLE_CLIENT_ID`.
 
-The project supports runtime environment variable injection for Docker containers, allowing you to use your own API keys without rebuilding the image.
+## 🛠 Features
+
+- **OAuth 2.0 PKCE**: Secure login without exposing secrets.
+- **Playlist Diffing**: Identify unique tracks and common matches across platforms.
+- **Recursive Migration**: Search and copy missing tracks from one platform to another.
+- **CSV Support**: Export comparison results or import local playlist data.
+- **Personal Storage**: Tokens are stored in `localStorage` for session persistence.
+
+## 📦 Docker & Deployment
+
+The system is optimized for production using Node 24 and Nginx.
+
+### Production Execution
+```bash
+docker-compose up prod
+```
+
+### Environment Variables (Runtime)
+The Docker image supports runtime environment injection via `ROBOLAB_` prefixed variables:
+- `ROBOLAB_SPOTIFY_CLIENT_ID`
+- `ROBOLAB_GOOGLE_CLIENT_ID`
+- `ROBOLAB_REDIRECT_URI`
+
+## ⚖️ Standards
+
+- **Security**: Mandatory `type="password"` for all sensitive inputs. Sanitize CSV exports to prevent formula injection.
+- **Accessibility**: ARIA-compliant components and robust keyboard navigation.
+- **Code Health**: Standardized error sanitization to prevent sensitive header leakage. NO `VITE_` variables allowed.
+
+---
+*© 2026 RoboLab Systems // System Revision 3.0.0*

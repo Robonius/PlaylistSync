@@ -11,6 +11,7 @@ export default defineConfig({
     host: "::",
     port: 8080,
   },
+  envPrefix: "ROBOLAB_",
   plugins: [react()],
   resolve: {
     alias: {

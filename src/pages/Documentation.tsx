@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, BookOpen, Key, Music2, Youtube, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, BookOpen, Key, Music2, Youtube, ShieldCheck, Globe, Server } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const Documentation = () => {
@@ -29,78 +29,98 @@ const Documentation = () => {
         <main className="space-y-12">
           <section className="space-y-4">
             <h2 className="text-2xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">System Overview</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed uppercase text-[12px] font-bold">
               RoboLab // Sync is a high-precision tool designed for the synchronization of auditory data across disparate platforms.
-              It provides a localized, secure interface for diffing catalogs, migrating tracklists, and archiving auditory metadata.
+              It uses OAuth 2.0 with PKCE for secure authentication without exposing secrets.
             </p>
           </section>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="rounded-none border-2">
-              <CardHeader className="bg-muted/50 border-b">
-                <CardTitle className="text-sm uppercase flex items-center gap-2">
-                  <Key className="h-4 w-4" /> Auth Protocol: Spotify
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-xs text-muted-foreground italic">
-                  Requires OAuth 2.0 Access Token with the following scopes:
-                </p>
-                <ul className="text-xs space-y-2 list-disc pl-4 uppercase font-bold">
-                  <li>playlist-read-private</li>
-                  <li>playlist-modify-public</li>
-                  <li>playlist-modify-private</li>
-                </ul>
-                <p className="text-xs leading-relaxed">
-                  Generate tokens via the Spotify for Developers dashboard. Tokens expire after 3600 seconds.
-                </p>
-              </CardContent>
-            </Card>
+          <section className="space-y-6">
+            <h2 className="text-xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">Authentication Configuration</h2>
 
-            <Card className="rounded-none border-2">
-              <CardHeader className="bg-muted/50 border-b">
-                <CardTitle className="text-sm uppercase flex items-center gap-2">
-                  <Youtube className="h-4 w-4" /> Auth Protocol: YouTube
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-xs text-muted-foreground italic">
-                  Synchronization requires OAuth credentials for write operations:
-                </p>
-                <ul className="text-xs space-y-2 list-disc pl-4 uppercase font-bold">
-                  <li>https://www.googleapis.com/auth/youtube</li>
-                </ul>
-                <p className="text-xs leading-relaxed">
-                  Read-only operations may use a standard API Key, but full sync requires an active OAuth session.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="rounded-none border-2">
+                <CardHeader className="bg-muted/50 border-b">
+                  <CardTitle className="text-sm uppercase flex items-center gap-2">
+                    <Music2 className="h-4 w-4 text-[#1DB954]" /> Spotify Setup
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-2 text-[10px] uppercase">
+                    <p className="font-bold">1. Dashboard Access</p>
+                    <p className="text-muted-foreground">Visit developer.spotify.com/dashboard</p>
+                    <p className="font-bold">2. Redirect URI</p>
+                    <p className="text-muted-foreground">Add http://localhost:8080 to your app settings</p>
+                    <p className="font-bold">3. Environment</p>
+                    <p className="text-muted-foreground">Set ROBOLAB_SPOTIFY_CLIENT_ID in your .env</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-none border-2">
+                <CardHeader className="bg-muted/50 border-b">
+                  <CardTitle className="text-sm uppercase flex items-center gap-2">
+                    <Youtube className="h-4 w-4 text-red-500" /> Google Setup
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-2 text-[10px] uppercase">
+                    <p className="font-bold">1. Cloud Console</p>
+                    <p className="text-muted-foreground">Visit console.cloud.google.com</p>
+                    <p className="font-bold">2. Enable API</p>
+                    <p className="text-muted-foreground">Enable 'YouTube Data API v3'</p>
+                    <p className="font-bold">3. OAuth Client</p>
+                    <p className="text-muted-foreground">Create a 'Web Application' client ID</p>
+                    <p className="font-bold">4. Environment</p>
+                    <p className="text-muted-foreground">Set ROBOLAB_GOOGLE_CLIENT_ID in your .env</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">Operational Workflow</h2>
+            <h2 className="text-xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">Environment Variables</h2>
+            <Card className="rounded-none border-2 bg-muted/20">
+              <CardContent className="p-6">
+                <pre className="text-[10px] leading-relaxed text-primary overflow-x-auto">
+{`# REQUIRED CONFIGURATION
+ROBOLAB_REDIRECT_URI=http://localhost:8080
+ROBOLAB_SPOTIFY_CLIENT_ID=your_id_here
+ROBOLAB_GOOGLE_CLIENT_ID=your_id_here
+
+# OPTIONAL READ-ONLY KEYS
+ROBOLAB_SPOTIFY_API_KEY=
+ROBOLAB_YOUTUBE_API_KEY=`}
+                </pre>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">Operational Workflow</h2>
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="h-8 w-8 shrink-0 bg-muted flex items-center justify-center font-bold border-2">01</div>
                 <div>
-                  <h3 className="font-bold uppercase text-sm">Initialize Sources</h3>
-                  <p className="text-xs text-muted-foreground">Input Source (Spotify) and Destination (YouTube) identifiers. Ensure valid tokens are mapped in the secure fields.</p>
+                  <h3 className="font-bold uppercase text-sm">Initialize Auth</h3>
+                  <p className="text-xs text-muted-foreground">Toggle 'OAuth Login' and authenticate with both platforms. Tokens are stored securely in localStorage.</p>
                 </div>
               </div>
               <Separator />
               <div className="flex gap-4">
                 <div className="h-8 w-8 shrink-0 bg-muted flex items-center justify-center font-bold border-2">02</div>
                 <div>
-                  <h3 className="font-bold uppercase text-sm">Execute Sync</h3>
-                  <p className="text-xs text-muted-foreground">The system will perform a recursive fetch of all track data, diff the results, and identify unique artifacts on both platforms.</p>
+                  <h3 className="font-bold uppercase text-sm">Diff Catalogs</h3>
+                  <p className="text-xs text-muted-foreground">Input playlist URLs and execute sync. The system identifies unique tracks on each side.</p>
                 </div>
               </div>
               <Separator />
               <div className="flex gap-4">
                 <div className="h-8 w-8 shrink-0 bg-muted flex items-center justify-center font-bold border-2">03</div>
                 <div>
-                  <h3 className="font-bold uppercase text-sm">Commit Changes</h3>
-                  <p className="text-xs text-muted-foreground">Select 'Copy to Spotify' or 'Copy to YouTube' to migrate missing tracks. The system uses fuzzy matching logic to resolve cross-platform identities.</p>
+                  <h3 className="font-bold uppercase text-sm">Commit Sync</h3>
+                  <p className="text-xs text-muted-foreground">Use 'Copy Unique' to migrate missing tracks to the destination platform.</p>
                 </div>
               </div>
             </div>
@@ -108,7 +128,7 @@ const Documentation = () => {
 
           <footer className="pt-12 pb-8 text-center border-t border-dashed">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-              End of Documentation // System Revision 2.6.0
+              End of Documentation // System Revision 3.0.0
             </p>
           </footer>
         </main>

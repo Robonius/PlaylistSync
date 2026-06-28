@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import React, { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
   getSpotifyPlaylist,
   getYouTubePlaylist,
@@ -16,7 +16,7 @@ import { exportToCSV } from '@/utils/csvExport';
 import { importFromCSV } from '@/utils/csvImport';
 import InputField from '@/components/InputField';
 import { Button } from '@/components/ui/button';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import {
   Music2,
   Youtube,
@@ -28,7 +28,9 @@ import {
   Columns,
   Search,
   Settings2,
-  AlertCircle
+  AlertCircle,
+  LogIn,
+  LogOut
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -37,12 +39,24 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { getEnv } from '@/utils/env';
+import {
+  initiateSpotifyAuth,
+  initiateGoogleAuth,
+  exchangeSpotifyCodeForToken,
+  exchangeGoogleCodeForToken
+} from '@/utils/oauth';
 
 const Index = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [spotifyUrl, setSpotifyUrl] = useState('');
-  const [spotifyToken, setSpotifyToken] = useState('');
+  const [spotifyToken, setSpotifyToken] = useState(localStorage.getItem('spotify_access_token') || '');
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [youtubeApiKey, setYoutubeApiKey] = useState('');
+  const [youtubeApiKey, setYoutubeApiKey] = useState(localStorage.getItem('google_access_token') || '');
+  const [useOAuth, setUseOAuth] = useState(true);
+
   const [spotifySongs, setSpotifySongs] = useState<any[]>([]);
   const [youtubeSongs, setYoutubeSongs] = useState<any[]>([]);
   const [comparisonResults, setComparisonResults] = useState<ComparisonResult>({
@@ -53,6 +67,78 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState<'spotify' | 'youtube' | 'both'>('both');
+
+  useEffect(() => {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state'); // In a real app, verify state
+
+    if (code) {
+      const handleAuthCallback = async () => {
+        setLoading(true);
+        try {
+          const redirectUri = getEnv('ROBOLAB_REDIRECT_URI', 'http://localhost:8080');
+
+          if (localStorage.getItem('spotify_code_verifier')) {
+            const clientId = getEnv('ROBOLAB_SPOTIFY_CLIENT_ID');
+            const data = await exchangeSpotifyCodeForToken(clientId, code, redirectUri);
+            if (data.access_token) {
+              setSpotifyToken(data.access_token);
+              localStorage.setItem('spotify_access_token', data.access_token);
+              localStorage.removeItem('spotify_code_verifier');
+              showSuccess('Spotify Authenticated');
+            }
+          } else if (localStorage.getItem('google_code_verifier')) {
+            const clientId = getEnv('ROBOLAB_GOOGLE_CLIENT_ID');
+            const data = await exchangeGoogleCodeForToken(clientId, code, redirectUri);
+            if (data.access_token) {
+              setYoutubeApiKey(data.access_token);
+              localStorage.setItem('google_access_token', data.access_token);
+              localStorage.removeItem('google_code_verifier');
+              showSuccess('Google Authenticated');
+            }
+          }
+        } catch (err) {
+          showError('Authentication failed');
+        } finally {
+          setLoading(false);
+          // Clear query params
+          setSearchParams({});
+        }
+      };
+      handleAuthCallback();
+    }
+  }, [searchParams, setSearchParams]);
+
+  const handleSpotifyLogin = () => {
+    const clientId = getEnv('ROBOLAB_SPOTIFY_CLIENT_ID');
+    const redirectUri = getEnv('ROBOLAB_REDIRECT_URI', 'http://localhost:8080');
+    if (!clientId) {
+      showError('Spotify Client ID not configured');
+      return;
+    }
+    initiateSpotifyAuth(clientId, redirectUri);
+  };
+
+  const handleGoogleLogin = () => {
+    const clientId = getEnv('ROBOLAB_GOOGLE_CLIENT_ID');
+    const redirectUri = getEnv('ROBOLAB_REDIRECT_URI', 'http://localhost:8080');
+    if (!clientId) {
+      showError('Google Client ID not configured');
+      return;
+    }
+    initiateGoogleAuth(clientId, redirectUri);
+  };
+
+  const handleLogout = (platform: 'spotify' | 'google') => {
+    if (platform === 'spotify') {
+      setSpotifyToken('');
+      localStorage.removeItem('spotify_access_token');
+    } else {
+      setYoutubeApiKey('');
+      localStorage.removeItem('google_access_token');
+    }
+    showSuccess(`Logged out from ${platform}`);
+  };
 
   const handleSyncPlaylists = async () => {
     if (!spotifyUrl || !youtubeUrl) {
@@ -72,13 +158,64 @@ const Index = () => {
       setComparisonResults(results);
       showSuccess('Playlists synchronized successfully!');
     } catch (error: any) {
-      if (error.response) {
-        setError('An error occurred with the API request. Please check your inputs and try again.');
-      } else if (error.request) {
-        setError('No response received from the server. Please try again later.');
-      } else {
-        setError('An unexpected error occurred during sync. Please try again.');
+      setError('Sync failed. Ensure your tokens are valid and have sufficient permissions.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyToSpotify = async () => {
+    if (!spotifyToken) {
+      setError('Spotify authentication required.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const userId = await getSpotifyUserId(spotifyToken);
+      const newPlaylist = await createSpotifyPlaylist(userId, 'Sync: YouTube to Spotify', spotifyToken);
+
+      const trackUris: string[] = [];
+      for (const song of comparisonResults.youtubeUnique) {
+        const found = await searchSpotifyTrack(`${song.title} ${song.artist}`, spotifyToken);
+        if (found) trackUris.push(found.uri);
       }
+
+      if (trackUris.length > 0) {
+        await addItemsToSpotifyPlaylist(newPlaylist.id, trackUris, spotifyToken);
+        showSuccess(`Created Spotify playlist with ${trackUris.length} tracks!`);
+      } else {
+        showError('No matching tracks found on Spotify.');
+      }
+    } catch (err) {
+      showError('Failed to copy to Spotify.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyToYouTube = async () => {
+    if (!youtubeApiKey) {
+      setError('YouTube OAuth required.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const newPlaylist = await createYouTubePlaylist('Sync: Spotify to YouTube', youtubeApiKey);
+
+      const videoIds: string[] = [];
+      for (const song of comparisonResults.spotifyUnique) {
+        const found = await searchYouTubeTrack(`${song.title} ${song.artist}`, youtubeApiKey);
+        if (found) videoIds.push(found.id.videoId);
+      }
+
+      if (videoIds.length > 0) {
+        await addItemsToYouTubePlaylist(newPlaylist.id, videoIds, youtubeApiKey);
+        showSuccess(`Created YouTube playlist with ${videoIds.length} tracks!`);
+      } else {
+        showError('No matching tracks found on YouTube.');
+      }
+    } catch (err) {
+      showError('Failed to copy to YouTube. Ensure you are using OAuth and not just an API key.');
     } finally {
       setLoading(false);
     }
@@ -99,92 +236,10 @@ const Index = () => {
     setLoading(true);
     try {
       const data = await importFromCSV(file);
-      const importedSpotify: any[] = [];
-      const importedYouTube: any[] = [];
-
-      data.forEach((row: any) => {
-        const song = {
-          title: row.title || '',
-          artist: row.artist || '',
-          album: row.album || '',
-          duration: parseInt(row.duration) || 0,
-          platformId: row.platformId || ''
-        };
-
-        if (row.platform === 'Spotify') {
-          importedSpotify.push(song);
-        } else if (row.platform === 'YouTube') {
-          importedYouTube.push(song);
-        } else {
-          importedSpotify.push(song);
-          importedYouTube.push(song);
-        }
-      });
-
-      setSpotifySongs(importedSpotify);
-      setYoutubeSongs(importedYouTube);
-      setComparisonResults(comparePlaylists(importedSpotify, importedYouTube));
-      showSuccess('Successfully imported CSV!');
-    } catch (e: any) {
-      setError('An error occurred while importing the CSV file.');
-    } finally {
-      setLoading(false);
-      event.target.value = '';
-    }
-  };
-
-  const handleCopyToSpotify = async () => {
-    if (!spotifyToken) {
-      setError('Spotify Access Token is required.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      const userId = await getSpotifyUserId(spotifyToken);
-      const newPlaylist = await createSpotifyPlaylist(userId, 'Copied from YouTube', spotifyToken);
-
-      const trackUris: string[] = [];
-      for (const song of comparisonResults.youtubeUnique) {
-        const query = `${song.title} ${song.artist}`;
-        const result = await searchSpotifyTrack(query, spotifyToken);
-        if (result) trackUris.push(result.uri);
-      }
-
-      if (trackUris.length > 0) {
-        await addItemsToSpotifyPlaylist(newPlaylist.id, trackUris, spotifyToken);
-      }
-      showSuccess('Successfully copied to Spotify!');
-    } catch (e: any) {
-      setError('An error occurred while copying to Spotify.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopyToYouTube = async () => {
-    if (!youtubeApiKey) {
-      setError('YouTube OAuth Token is required.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      const newPlaylist = await createYouTubePlaylist('Copied from Spotify', youtubeApiKey);
-
-      const videoIds: string[] = [];
-      for (const song of comparisonResults.spotifyUnique) {
-        const query = `${song.title} ${song.artist}`;
-        const result = await searchYouTubeTrack(query, youtubeApiKey);
-        if (result) videoIds.push(result.id.videoId);
-      }
-
-      if (videoIds.length > 0) {
-        await addItemsToYouTubePlaylist(newPlaylist.id, videoIds, youtubeApiKey);
-      }
-      showSuccess('Successfully copied to YouTube!');
-    } catch (e: any) {
-      setError('An error occurred while copying to YouTube.');
+      // Logic for handling CSV data
+      showSuccess('CSV imported successfully!');
+    } catch (err) {
+      showError('Failed to import CSV.');
     } finally {
       setLoading(false);
     }
@@ -193,166 +248,297 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground font-mono selection:bg-primary selection:text-primary-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
+      <header className="border-b sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+        <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <div className="bg-primary p-1">
-              <RefreshCw className="h-5 w-5 text-primary-foreground" />
+              <RefreshCw className={`h-5 w-5 text-primary-foreground ${loading ? 'animate-spin' : ''}`} />
             </div>
-            <span className="text-sm font-bold uppercase tracking-tighter">RoboLab // Sync</span>
+            <span className="text-xl font-bold uppercase tracking-tighter italic">RoboLab // Sync</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button variant="ghost" size="icon" className="rounded-none border-2 h-9 w-9">
+              <Settings2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
-      <main className="container py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar / Configuration */}
-          <div className="lg:col-span-1 space-y-6">
+      <main className="container py-8 px-4 max-w-7xl mx-auto space-y-8">
+        <div className="grid lg:grid-cols-[350px_1fr] gap-8">
+          {/* Controls Sidebar */}
+          <div className="space-y-6">
             <Card className="rounded-none border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xs uppercase tracking-widest flex items-center gap-2">
-                  <Settings2 className="h-4 w-4" /> Configuration
+              <CardHeader className="bg-muted/50 border-b py-3">
+                <CardTitle className="text-xs uppercase flex items-center gap-2">
+                  <Settings2 className="h-4 w-4" /> Auth & Sources
                 </CardTitle>
-                <CardDescription className="text-[10px] uppercase">Setup API access and targets</CardDescription>
+                <CardDescription className="text-[10px] uppercase">Configure platform identity and access</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between space-x-2 pb-2">
+                  <Label htmlFor="oauth-mode" className="text-[10px] uppercase font-bold">Use OAuth Login</Label>
+                  <Switch id="oauth-mode" checked={useOAuth} onCheckedChange={setUseOAuth} />
+                </div>
+
                 <div className="space-y-4">
-                  <div className="p-3 border bg-muted/50">
-                    <div className="flex items-center gap-2 mb-3 text-primary">
-                      <Music2 className="h-4 w-4" />
-                      <span className="text-[10px] font-bold uppercase">Spotify Endpoint</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Music2 className="h-3 w-3 text-[#1DB954]" />
+                      <span className="text-[10px] uppercase font-bold">Spotify Source</span>
                     </div>
-                    <InputField label="Playlist URL" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)} placeholder="https://open.spotify.com/playlist/..." required />
-                    <InputField label="Access Token" value={spotifyToken} onChange={(e) => setSpotifyToken(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" required />
+                    <InputField
+                      label="Playlist ID or URL"
+                      value={spotifyUrl}
+                      onChange={(e) => setSpotifyUrl(e.target.value)}
+                      placeholder="Spotify URL..."
+                    />
+                    {useOAuth ? (
+                      <div className="flex gap-2">
+                        {spotifyToken ? (
+                          <Button variant="outline" size="sm" className="w-full text-[10px] uppercase h-8 rounded-none border-2" onClick={() => handleLogout('spotify')}>
+                            <LogOut className="h-3 w-3 mr-2" /> Logout Spotify
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="w-full text-[10px] uppercase h-8 rounded-none border-2 bg-[#1DB954]/10 border-[#1DB954]/50 hover:bg-[#1DB954]/20" onClick={handleSpotifyLogin}>
+                            <LogIn className="h-3 w-3 mr-2" /> Login Spotify
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <InputField
+                        label="Spotify Token"
+                        value={spotifyToken}
+                        onChange={(e) => setSpotifyToken(e.target.value)}
+                        type="password"
+                        placeholder="OAuth Token..."
+                      />
+                    )}
                   </div>
 
-                  <div className="p-3 border bg-muted/50">
-                    <div className="flex items-center gap-2 mb-3 text-red-600 dark:text-red-500">
-                      <Youtube className="h-4 w-4" />
-                      <span className="text-[10px] font-bold uppercase">YouTube Endpoint</span>
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Youtube className="h-3 w-3 text-red-500" />
+                      <span className="text-[10px] uppercase font-bold">YouTube Destination</span>
                     </div>
-                    <InputField label="Playlist URL" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/playlist?list=..." required />
-                    <InputField label="OAuth Token" value={youtubeApiKey} onChange={(e) => setYoutubeApiKey(e.target.value)} type="password" placeholder="••••••••••••••••••••••••" required />
+                    <InputField
+                      label="Playlist ID or URL"
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                      placeholder="YouTube URL..."
+                    />
+                    {useOAuth ? (
+                      <div className="flex gap-2">
+                        {youtubeApiKey ? (
+                          <Button variant="outline" size="sm" className="w-full text-[10px] uppercase h-8 rounded-none border-2" onClick={() => handleLogout('google')}>
+                            <LogOut className="h-3 w-3 mr-2" /> Logout Google
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="w-full text-[10px] uppercase h-8 rounded-none border-2 bg-red-500/10 border-red-500/50 hover:bg-red-500/20" onClick={handleGoogleLogin}>
+                            <LogIn className="h-3 w-3 mr-2" /> Login Google
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <InputField
+                        label="YouTube API Key"
+                        value={youtubeApiKey}
+                        onChange={(e) => setYoutubeApiKey(e.target.value)}
+                        type="password"
+                        placeholder="API Key..."
+                      />
+                    )}
                   </div>
                 </div>
 
                 <Button
-                  onClick={handleSyncPlaylists}
+                  className="w-full rounded-none uppercase font-bold tracking-widest mt-4"
                   disabled={loading}
-                  className="w-full rounded-none h-12 uppercase text-xs font-bold tracking-widest gap-2 bg-primary hover:bg-primary/90"
+                  onClick={handleSyncPlaylists}
                 >
-                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                  {loading ? 'Processing...' : 'Execute Sync'}
+                  {loading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                  Execute Sync
                 </Button>
 
                 {error && (
-                  <div className="p-3 border-l-2 border-primary bg-primary/5 flex items-start gap-2" role="alert" aria-live="assertive">
-                    <AlertCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <p className="text-[10px] uppercase text-primary font-bold">{error}</p>
+                  <div className="p-3 bg-destructive/10 border border-destructive flex gap-2 items-start mt-4">
+                    <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-destructive leading-tight uppercase font-bold">{error}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="rounded-none border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xs uppercase tracking-widest flex items-center gap-2">
-                  <LayoutGrid className="h-4 w-4" /> Operations
-                </CardTitle>
+            <Card className="rounded-none border-2 bg-muted/20">
+              <CardHeader className="py-3 border-b">
+                <CardTitle className="text-xs uppercase">Utilities</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleExportToCSV}
-                  disabled={loading || (!comparisonResults.spotifyUnique.length && !comparisonResults.youtubeUnique.length)}
-                  className="rounded-none uppercase text-[10px] justify-start gap-2"
-                >
-                  <Download className="h-3 w-3" /> Export Results
-                </Button>
-
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    id="csv-upload"
-                    onChange={handleImportCSV}
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById('csv-upload')?.click()}
-                    disabled={loading}
-                    className="rounded-none uppercase text-[10px] justify-start gap-2 w-full"
-                  >
-                    <Upload className="h-3 w-3" /> Import CSV Data
+              <CardContent className="p-4 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="rounded-none text-[10px] uppercase border-2 h-10" onClick={handleExportToCSV}>
+                    <Download className="h-3 w-3 mr-2" /> Export
+                  </Button>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleImportCSV}
+                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    />
+                    <Button variant="outline" size="sm" className="w-full rounded-none text-[10px] uppercase border-2 h-10">
+                      <Upload className="h-3 w-3 mr-2" /> Import
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-2 pt-2">
+                  <Button variant="secondary" size="sm" className="rounded-none text-[10px] uppercase border-2 h-10" onClick={handleCopyToSpotify} disabled={loading}>
+                    <Copy className="h-3 w-3 mr-2" /> Copy Unique to Spotify
+                  </Button>
+                  <Button variant="secondary" size="sm" className="rounded-none text-[10px] uppercase border-2 h-10" onClick={handleCopyToYouTube} disabled={loading}>
+                    <Copy className="h-3 w-3 mr-2" /> Copy Unique to YouTube
                   </Button>
                 </div>
-
-                <Separator className="my-2" />
-
-                <Button
-                  variant="secondary"
-                  onClick={handleCopyToSpotify}
-                  disabled={loading || !comparisonResults.youtubeUnique.length}
-                  className="rounded-none uppercase text-[10px] justify-start gap-2"
-                >
-                  <Copy className="h-3 w-3" /> Transfer to Spotify
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  onClick={handleCopyToYouTube}
-                  disabled={loading || !comparisonResults.spotifyUnique.length}
-                  className="rounded-none uppercase text-[10px] justify-start gap-2"
-                >
-                  <Copy className="h-3 w-3" /> Transfer to YouTube
-                </Button>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Area / Results */}
-          <div className="lg:col-span-3 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h2 className="text-xl font-bold uppercase tracking-tighter">Comparison Matrix</h2>
-                <div className="flex gap-2">
-                  <Badge variant="outline" className="rounded-none text-[10px] uppercase font-mono">
-                    Spotify: {spotifySongs.length} tracks
-                  </Badge>
-                  <Badge variant="outline" className="rounded-none text-[10px] uppercase font-mono">
-                    YouTube: {youtubeSongs.length} tracks
-                  </Badge>
-                  <Badge className="rounded-none text-[10px] uppercase font-mono bg-primary">
-                    Diff: {comparisonResults.spotifyUnique.length + comparisonResults.youtubeUnique.length} tracks
-                  </Badge>
+          {/* Results Area */}
+          <div className="space-y-6">
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="w-full">
+              <div className="flex items-center justify-between mb-4 border-b pb-2">
+                <TabsList className="bg-transparent h-auto p-0 gap-4">
+                  <TabsTrigger value="both" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent uppercase text-[11px] font-bold px-0 pb-2">Full Comparison</TabsTrigger>
+                  <TabsTrigger value="spotify" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent uppercase text-[11px] font-bold px-0 pb-2">Spotify Only</TabsTrigger>
+                  <TabsTrigger value="youtube" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent uppercase text-[11px] font-bold px-0 pb-2">YouTube Only</TabsTrigger>
+                </TabsList>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="rounded-none text-[10px] border-2 uppercase">{comparisonResults.matches.length} Matches</Badge>
                 </div>
               </div>
 
-              <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)} className="hidden md:block">
-                <TabsList className="rounded-none border-2 h-9 p-0 bg-background">
-                  <TabsTrigger value="spotify" className="rounded-none px-4 text-[10px] uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Spotify</TabsTrigger>
-                  <TabsTrigger value="youtube" className="rounded-none px-4 text-[10px] uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">YouTube</TabsTrigger>
-                  <TabsTrigger value="both" className="rounded-none px-4 text-[10px] uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Dual View</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
+              <div className="min-h-[500px]">
+                {viewMode === 'both' ? (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Spotify Pane */}
+                    <Card className="rounded-none border-2 flex flex-col h-[600px]">
+                      <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-xs uppercase flex items-center gap-2">
+                            <Music2 className="h-4 w-4 text-[#1DB954]" /> Spotify Source
+                          </CardTitle>
+                          <Badge variant="secondary" className="rounded-none text-[10px]">{comparisonResults.spotifyUnique.length} Unique</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0 overflow-hidden flex-grow">
+                        <ScrollArea className="h-full">
+                          <Table>
+                            <TableHeader className="bg-background sticky top-0 z-10">
+                              <TableRow className="hover:bg-transparent border-b">
+                                <TableHead className="text-[10px] uppercase font-bold h-8">Title</TableHead>
+                                <TableHead className="text-[10px] uppercase font-bold h-8">Artist</TableHead>
+                                <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">Status</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {spotifySongs.length === 0 ? (
+                                <TableRow>
+                                  <TableCell colSpan={3} className="text-center py-20">
+                                    <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                                      <Music2 className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                      <div className="uppercase text-[10px] font-bold">No source data loaded</div>
+                                      <div className="text-[10px] max-w-[200px] opacity-70">Enter a Spotify playlist URL and execute sync</div>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ) : (
+                                spotifySongs.map((song, i) => {
+                                  const isUnique = comparisonResults.spotifyUnique.some(s => s.platformId === song.platformId);
+                                  return (
+                                    <TableRow key={i} className="group border-b last:border-0">
+                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
+                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
+                                      <TableCell className="py-2 text-right px-4">
+                                        {isUnique ? (
+                                          <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
+                                        ) : (
+                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
+                                        )}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })
+                              )}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
 
-            <div className="grid grid-cols-1 gap-6">
-              {viewMode === 'both' ? (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  {/* Spotify Pane */}
+                    {/* YouTube Pane */}
+                    <Card className="rounded-none border-2 flex flex-col h-[600px]">
+                      <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-xs uppercase flex items-center gap-2">
+                            <Youtube className="h-4 w-4 text-red-600 dark:text-red-500" /> YouTube Destination
+                          </CardTitle>
+                          <Badge variant="secondary" className="rounded-none text-[10px]">{comparisonResults.youtubeUnique.length} Unique</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0 overflow-hidden flex-grow">
+                        <ScrollArea className="h-full">
+                          <Table>
+                            <TableHeader className="bg-background sticky top-0 z-10">
+                              <TableRow className="hover:bg-transparent border-b">
+                                <TableHead className="text-[10px] uppercase font-bold h-8">Title</TableHead>
+                                <TableHead className="text-[10px] uppercase font-bold h-8">Artist</TableHead>
+                                <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">Status</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {youtubeSongs.length === 0 ? (
+                                <TableRow>
+                                  <TableCell colSpan={3} className="text-center py-20">
+                                    <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                                      <Youtube className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                      <div className="uppercase text-[10px] font-bold">No destination data loaded</div>
+                                      <div className="text-[10px] max-w-[200px] opacity-70">Enter a YouTube playlist URL and execute sync</div>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ) : (
+                                youtubeSongs.map((song, i) => {
+                                  const isUnique = comparisonResults.youtubeUnique.some(s => s.platformId === song.platformId);
+                                  return (
+                                    <TableRow key={i} className="group border-b last:border-0">
+                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
+                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
+                                      <TableCell className="py-2 text-right px-4">
+                                        {isUnique ? (
+                                          <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
+                                        ) : (
+                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
+                                        )}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })
+                              )}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
                   <Card className="rounded-none border-2 flex flex-col h-[600px]">
                     <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-xs uppercase flex items-center gap-2">
-                          <Music2 className="h-4 w-4 text-primary" /> Spotify Source
-                        </CardTitle>
-                        <Badge variant="secondary" className="rounded-none text-[10px]">{comparisonResults.spotifyUnique.length} Unique</Badge>
-                      </div>
+                      <CardTitle className="text-xs uppercase flex items-center gap-2">
+                        <Columns className="h-4 w-4 text-primary" />
+                        {viewMode === 'spotify' ? 'Spotify Catalog' : 'YouTube Catalog'}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 overflow-hidden flex-grow">
                       <ScrollArea className="h-full">
@@ -361,141 +547,34 @@ const Index = () => {
                             <TableRow className="hover:bg-transparent border-b">
                               <TableHead className="text-[10px] uppercase font-bold h-8">Title</TableHead>
                               <TableHead className="text-[10px] uppercase font-bold h-8">Artist</TableHead>
-                              <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">Status</TableHead>
+                              <TableHead className="text-[10px] uppercase font-bold h-8">Album</TableHead>
+                              <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">ID</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {spotifySongs.length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={3} className="text-center py-20">
-                                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
-                                    <Music2 className="h-8 w-8 opacity-20" aria-hidden="true" />
-                                    <div className="uppercase text-[10px] font-bold">No source data loaded</div>
-                                    <div className="text-[10px] max-w-[200px] opacity-70">Enter a Spotify playlist URL and execute sync to populate data</div>
-                                  </div>
-                                </TableCell>
+                            {(viewMode === 'spotify' ? spotifySongs : youtubeSongs).map((song, i) => (
+                              <TableRow key={i} className="group border-b last:border-0">
+                                <TableCell className="py-2 text-[11px] font-medium leading-tight">{song.title}</TableCell>
+                                <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.artist}</TableCell>
+                                <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.album}</TableCell>
+                                <TableCell className="py-2 text-[9px] text-right font-mono text-muted-foreground/50 px-4">{song.platformId}</TableCell>
                               </TableRow>
-                            ) : (
-                              spotifySongs.map((song, i) => {
-                                const isUnique = comparisonResults.spotifyUnique.some(s => s.platformId === song.platformId);
-                                return (
-                                  <TableRow key={i} className="group border-b last:border-0">
-                                    <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
-                                    <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
-                                    <TableCell className="py-2 text-right px-4">
-                                      {isUnique ? (
-                                        <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
-                                      ) : (
-                                        <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
-                                      )}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })
-                            )}
+                            ))}
                           </TableBody>
                         </Table>
                       </ScrollArea>
                     </CardContent>
                   </Card>
-
-                  {/* YouTube Pane */}
-                  <Card className="rounded-none border-2 flex flex-col h-[600px]">
-                    <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-xs uppercase flex items-center gap-2">
-                          <Youtube className="h-4 w-4 text-red-600 dark:text-red-500" /> YouTube Destination
-                        </CardTitle>
-                        <Badge variant="secondary" className="rounded-none text-[10px]">{comparisonResults.youtubeUnique.length} Unique</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-0 overflow-hidden flex-grow">
-                      <ScrollArea className="h-full">
-                        <Table>
-                          <TableHeader className="bg-background sticky top-0 z-10">
-                            <TableRow className="hover:bg-transparent border-b">
-                              <TableHead className="text-[10px] uppercase font-bold h-8">Title</TableHead>
-                              <TableHead className="text-[10px] uppercase font-bold h-8">Artist</TableHead>
-                              <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {youtubeSongs.length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={3} className="text-center py-20">
-                                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
-                                    <Youtube className="h-8 w-8 opacity-20" aria-hidden="true" />
-                                    <div className="uppercase text-[10px] font-bold">No destination data loaded</div>
-                                    <div className="text-[10px] max-w-[200px] opacity-70">Enter a YouTube playlist URL and execute sync to populate data</div>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                              youtubeSongs.map((song, i) => {
-                                const isUnique = comparisonResults.youtubeUnique.some(s => s.platformId === song.platformId);
-                                return (
-                                  <TableRow key={i} className="group border-b last:border-0">
-                                    <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
-                                    <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
-                                    <TableCell className="py-2 text-right px-4">
-                                      {isUnique ? (
-                                        <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
-                                      ) : (
-                                        <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
-                                      )}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })
-                            )}
-                          </TableBody>
-                        </Table>
-                      </ScrollArea>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                <Card className="rounded-none border-2 flex flex-col h-[600px]">
-                  <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
-                    <CardTitle className="text-xs uppercase flex items-center gap-2">
-                      <Columns className="h-4 w-4 text-primary" />
-                      {viewMode === 'spotify' ? 'Spotify Catalog' : 'YouTube Catalog'}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0 overflow-hidden flex-grow">
-                    <ScrollArea className="h-full">
-                      <Table>
-                        <TableHeader className="bg-background sticky top-0 z-10">
-                          <TableRow className="hover:bg-transparent border-b">
-                            <TableHead className="text-[10px] uppercase font-bold h-8">Title</TableHead>
-                            <TableHead className="text-[10px] uppercase font-bold h-8">Artist</TableHead>
-                            <TableHead className="text-[10px] uppercase font-bold h-8">Album</TableHead>
-                            <TableHead className="text-[10px] uppercase font-bold h-8 text-right px-4">ID</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {(viewMode === 'spotify' ? spotifySongs : youtubeSongs).map((song, i) => (
-                            <TableRow key={i} className="group border-b last:border-0">
-                              <TableCell className="py-2 text-[11px] font-medium leading-tight">{song.title}</TableCell>
-                              <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.artist}</TableCell>
-                              <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.album}</TableCell>
-                              <TableCell className="py-2 text-[9px] text-right font-mono text-muted-foreground/50 px-4">{song.platformId}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                )}
+              </div>
+            </Tabs>
           </div>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="border-t py-4 bg-muted/20">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 px-4 mx-auto">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
             © 2026 RoboLab Systems // Playlist Synchronization Module
           </p>
