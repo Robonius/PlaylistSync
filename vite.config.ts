@@ -18,4 +18,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // We use a prefix to avoid the security error, but a very generic one.
+  // Alternatively, we can list the exact variables we want to expose.
+  envPrefix: ['SPOTIFY_', 'YOUTUBE_', 'GOOGLE_', 'OAUTH_', 'APP_NAME', 'LOG_LEVEL'],
 });

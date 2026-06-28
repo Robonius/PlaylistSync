@@ -21,7 +21,7 @@ describe('api.ts', () => {
         {
           snippet: {
             title: 'Test Playlist',
-            description: 'Imported by Playlist Comparison Tool'
+            description: 'Imported by RoboLab Sync Tool'
           },
           status: {
             privacyStatus: 'private'

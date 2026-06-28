@@ -18,9 +18,9 @@ For a "vibe coder" building a fast, client-side, API-heavy tool, the chosen stac
 
 This project strictly follows a **"No Baking"** policy for sensitive information like API keys.
 
-- **Vite's "Baking" Problem:** Standard Vite apps replace `import.meta.env.VITE_...` with hardcoded strings at build time. This risks accidentally embedding secrets in the published Docker image.
+- **Vite's "Baking" Problem:** Standard Vite apps replace `import.meta.env....` with hardcoded strings at build time. This risks accidentally embedding secrets in the published Docker image.
 - **The Solution:** We use a robust runtime injection system.
-  1. **Runtime Keys:** Sensitive keys like `SPOTIFY_API_KEY` and `YOUTUBE_API_KEY` are **not** prefixed with `VITE_`. This ensures Vite's compiler ignores them during the build.
+  1. **Runtime Keys:** Sensitive keys like `SPOTIFY_API_KEY` and `YOUTUBE_API_KEY` are **not** prefixed with ``. This ensures Vite's compiler ignores them during the build.
   2. **Docker Entrypoint:** When the container starts, `docker/entrypoint.sh` reads these keys from the container environment and generates a `public/env-config.js` file.
   3. **Runtime Prioritization:** The app uses `src/utils/env.ts` to prioritize values from `window._env_` (injected at runtime) over any build-time fallbacks.
   4. **Build Safety:** `.env` and `.env.local` are included in `.dockerignore` to prevent local secrets from ever reaching the build context.
