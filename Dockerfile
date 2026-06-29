@@ -1,38 +1,16 @@
-# Base image
-FROM node:24-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
+FROM oven/bun:alpine AS base
 WORKDIR /app
-
-# Dependencies layer
-FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
-
-# Development environment
-FROM base AS dev
-COPY --from=deps /app/node_modules ./node_modules
+RUN bun install --frozen-lockfile
 COPY . .
-EXPOSE 5173
-CMD ["pnpm", "run", "dev", "--host", "0.0.0.0"]
-
-# Build layer
-FROM base AS build
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN pnpm run build
-
-# Production server
-FROM nginx:alpine AS prod
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Add custom entrypoint for runtime env vars
-COPY docker/entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-EXPOSE 80
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+RUN bun run build
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=base /app/.next/standalone ./
+COPY --from=base /app/.next/static ./.next/static
+COPY --from=base /app/public ./public
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["bun", "run", "server.js"]

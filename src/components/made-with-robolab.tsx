@@ -1,3 +1,4 @@
+"use client";
 export const MadeWithRoboLab = () => {
   return (
     <div className="p-4 text-center">
