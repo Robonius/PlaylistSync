@@ -50,6 +50,7 @@ import {
 } from '@/utils/oauth';
 
 const Index = () => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [spotifyToken, setSpotifyToken] = useState(localStorage.getItem('spotify_access_token') || '');
@@ -258,7 +259,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" className="rounded-none border-2 h-9 w-9">
+            <Button variant="ghost" size="icon" className="rounded-none border-2 h-9 w-9" aria-label="Settings">
               <Settings2 className="h-4 w-4" />
             </Button>
           </div>
@@ -384,11 +385,17 @@ const Index = () => {
                   <div className="relative">
                     <input
                       type="file"
+                      ref={fileInputRef}
                       accept=".csv"
                       onChange={handleImportCSV}
-                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      className="hidden"
                     />
-                    <Button variant="outline" size="sm" className="w-full rounded-none text-[10px] uppercase border-2 h-10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full rounded-none text-[10px] uppercase border-2 h-10"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
                       <Upload className="h-3 w-3 mr-2" /> Import
                     </Button>
                   </div>
