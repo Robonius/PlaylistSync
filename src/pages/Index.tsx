@@ -71,7 +71,7 @@ const Index = () => {
 
   useEffect(() => {
     const code = searchParams.get('code');
-    const state = searchParams.get('state'); // In a real app, verify state
+    const state = searchParams.get('state');
 
     if (code) {
       const handleAuthCallback = async () => {
@@ -80,6 +80,13 @@ const Index = () => {
           const redirectUri = getEnv('ROBOLAB_REDIRECT_URI', 'http://localhost:8080');
 
           if (localStorage.getItem('spotify_code_verifier')) {
+            const storedState = localStorage.getItem('spotify_auth_state');
+            localStorage.removeItem('spotify_auth_state');
+
+            if (!state || state !== storedState) {
+              throw new Error('CSRF validation failed');
+            }
+
             const clientId = getEnv('ROBOLAB_SPOTIFY_CLIENT_ID');
             const data = await exchangeSpotifyCodeForToken(clientId, code, redirectUri);
             if (data.access_token) {
@@ -89,6 +96,13 @@ const Index = () => {
               showSuccess('Spotify Authenticated');
             }
           } else if (localStorage.getItem('google_code_verifier')) {
+            const storedState = localStorage.getItem('google_auth_state');
+            localStorage.removeItem('google_auth_state');
+
+            if (!state || state !== storedState) {
+              throw new Error('CSRF validation failed');
+            }
+
             const clientId = getEnv('ROBOLAB_GOOGLE_CLIENT_ID');
             const data = await exchangeGoogleCodeForToken(clientId, code, redirectUri);
             if (data.access_token) {
