@@ -43,8 +43,10 @@ export const generateCodeChallenge = async (codeVerifier: string) => {
 export const initiateSpotifyAuth = async (clientId: string, redirectUri: string) => {
   const codeVerifier = generateRandomString(128);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const state = generateRandomString(32);
 
   localStorage.setItem('spotify_code_verifier', codeVerifier);
+  localStorage.setItem('spotify_auth_state', state);
 
   const scope = 'playlist-read-private playlist-modify-public playlist-modify-private';
   const authUrl = new URL('https://accounts.spotify.com/authorize');
@@ -56,6 +58,7 @@ export const initiateSpotifyAuth = async (clientId: string, redirectUri: string)
     code_challenge_method: 'S256',
     code_challenge: codeChallenge,
     redirect_uri: redirectUri,
+    state,
   };
 
   authUrl.search = new URLSearchParams(params).toString();
@@ -65,8 +68,10 @@ export const initiateSpotifyAuth = async (clientId: string, redirectUri: string)
 export const initiateGoogleAuth = async (clientId: string, redirectUri: string) => {
   const codeVerifier = generateRandomString(128);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const state = generateRandomString(32);
 
   localStorage.setItem('google_code_verifier', codeVerifier);
+  localStorage.setItem('google_auth_state', state);
 
   // Scopes for YouTube write access
   const scope = 'https://www.googleapis.com/auth/youtube';
@@ -80,7 +85,8 @@ export const initiateGoogleAuth = async (clientId: string, redirectUri: string) 
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     access_type: 'offline', // Note: For Web apps with PKCE, refresh tokens might be limited
-    prompt: 'consent'
+    prompt: 'consent',
+    state,
   };
 
   authUrl.search = new URLSearchParams(params).toString();
