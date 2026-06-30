@@ -365,8 +365,12 @@ const Index = () => {
                 </Button>
 
                 {error && (
-                  <div className="p-3 bg-destructive/10 border border-destructive flex gap-2 items-start mt-4">
-                    <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                  <div
+                    className="p-3 bg-destructive/10 border border-destructive flex gap-2 items-start mt-4"
+                    role="alert"
+                    aria-live="assertive"
+                  >
+                    <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
                     <p className="text-[10px] text-destructive leading-tight uppercase font-bold">{error}</p>
                   </div>
                 )}
