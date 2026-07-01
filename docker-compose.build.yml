@@ -6,7 +6,7 @@ services:
       context: .
       target: dev
     ports:
-      - "5173:5173"
+      - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
@@ -20,6 +20,6 @@ services:
       context: .
       target: prod
     ports:
-      - "8081:80"
+      - "8081:3000"
     env_file:
       - .env

@@ -45,7 +45,7 @@ services:
   playlistsync:
     image: ghcr.io/robonius/playlistsync:latest
     ports:
-      - "8080:80"
+      - "8080:3000"
     environment:
       - ROBOLAB_SPOTIFY_API_URL=https://api.spotify.com/v1
       - ROBOLAB_YOUTUBE_API_URL=https://www.googleapis.com/youtube/v3
@@ -73,7 +73,7 @@ When the container is running, verify the following:
 
 ## 5. Why this works (Technical Note)
 
-Standard Vite apps "bake" environment variables into the static JS files at build time. To allow you to change API keys **without rebuilding the image**, we use a custom entrypoint (`docker/entrypoint.sh`) that:
+Standard Next.js apps "bake" environment variables into the static JS files at build time. To allow you to change API keys **without rebuilding the image**, we use a custom entrypoint (`docker/entrypoint.sh`) that:
 1. Reads all `ROBOLAB_` variables from the container environment.
 2. Generates a `env-config.js` file inside the container.
 3. Injects this script into `index.html`.

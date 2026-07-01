@@ -6,7 +6,7 @@ A high-precision React application for synchronizing and comparing playlists acr
 
 1. **Install Dependencies**:
    ```bash
-   pnpm install
+   bun install
    ```
 2. **Configure Environment**:
    Copy `.env.example` to `.env`. All variables MUST be prefixed with `ROBOLAB_`.
@@ -15,9 +15,9 @@ A high-precision React application for synchronizing and comparing playlists acr
    ```
 3. **Start Development**:
    ```bash
-   pnpm run dev
+   bun run dev
    ```
-   Access the system at `http://localhost:8080`.
+   Access the system at `http://localhost:3000`.
 
 ## 🔐 Authentication Setup
 
@@ -49,7 +49,7 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 
 ## 📦 Docker & Deployment
 
-The system is optimized for production using Node 24 and Nginx.
+The system is optimized for production using Bun and Next.js Standalone mode.
 
 ### Production Execution
 ```bash
