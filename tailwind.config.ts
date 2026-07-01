@@ -1,11 +1,12 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * RoboLab Tailwind Configuration
+ * This file defines the theme and styling rules for the RoboLab Playlist Comparison Tool.
+ */
 export default {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
   prefix: "",

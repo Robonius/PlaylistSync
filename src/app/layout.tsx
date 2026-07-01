@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "RoboLab - Playlist Comparison Tool",
+  icons: { icon: "/icon.svg" },
   description: "Sync, backup, and transfer playlists across streaming platforms.",
 };
 
