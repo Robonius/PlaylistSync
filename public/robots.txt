@@ -1,14 +1,5 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# RoboLab - Playlist Comparison Tool
+# https://github.com/robonius/playlistsync
 
 User-agent: *
 Allow: /
