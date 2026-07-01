@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 interface InputFieldProps {
   label: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
   required?: boolean;
@@ -23,7 +23,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = 
         id={id}
         type={type}
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
         aria-required={required ? "true" : "false"}

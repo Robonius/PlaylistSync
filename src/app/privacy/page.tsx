@@ -1,32 +1,33 @@
+"use client";
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ShieldCheck, Lock, EyeOff, Database } from 'lucide-react';
+import { ChevronLeft, Shield, Lock, EyeOff, Database } from 'lucide-react';
 
-const Privacy = () => {
+export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono selection:bg-primary selection:text-primary-foreground p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <header className="flex items-center justify-between">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground p-4 md:p-8">
+      <div className="max-w-4xl mx-auto space-y-12">
+        <header className="flex items-center justify-between border-b-2 border-primary/20 pb-6">
           <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="icon" className="rounded-none border-2">
-                <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Back to Home</span>
+            <Link href="/">
+              <Button variant="outline" size="icon" className="rounded-none border-2 h-10 w-10">
+                <ChevronLeft className="h-5 w-5" />
+                <span className="sr-only">Back to Command Center</span>
               </Button>
             </Link>
-            <div className="flex items-center gap-2">
-              <div className="bg-primary p-1">
-                <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-3">
+              <div className="bg-primary p-1.5 rounded-none rotate-45">
+                <Shield className="h-5 w-5 text-primary-foreground -rotate-45" />
               </div>
-              <span className="text-xl font-bold uppercase tracking-tighter italic">RoboLab // Privacy</span>
+              <h1 className="text-xl font-black uppercase tracking-tighter italic">RoboLab // Privacy</h1>
             </div>
           </div>
         </header>
 
         <main className="space-y-12">
           <section className="space-y-4">
-            <h2 className="text-2xl font-bold uppercase tracking-widest border-l-4 border-primary pl-4">Privacy Protocol</h2>
+            <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-primary pl-4">Privacy Protocol</h2>
             <p className="text-muted-foreground leading-relaxed">
               At RoboLab Industrial Systems, we believe in radical transparency and absolute data sovereignty.
               The Playlist Synchronization Module (PSM) is engineered as a client-side first application.
@@ -80,6 +81,4 @@ const Privacy = () => {
       </div>
     </div>
   );
-};
-
-export default Privacy;
+}

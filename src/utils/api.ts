@@ -145,13 +145,13 @@ export const getSpotifyUserId = async (token: string) => {
   }
 };
 
-export const createYouTubePlaylist = async (title: string, token: string) => {
+export const createYouTubePlaylist = async (title: string, description: string, token: string) => {
   try {
     const authToken = token || SYSTEM_YOUTUBE_API_KEY;
     const response = await axios.post(`${YOUTUBE_API_URL}/playlists`, {
       snippet: {
         title: title,
-        description: 'Imported by RoboLab // Sync'
+        description: description || 'Imported by RoboLab // Sync'
       },
       status: {
         privacyStatus: 'private'
@@ -164,43 +164,42 @@ export const createYouTubePlaylist = async (title: string, token: string) => {
         Authorization: `Bearer ${authToken}`,
       },
     });
-    return response.data;
+    return response.data.id;
   } catch (error) {
     console.error('Error creating YouTube playlist');
     throw sanitizeError(error);
   }
 };
 
-export const addItemsToYouTubePlaylist = async (playlistId: string, videoIds: string[], token: string) => {
+export const addItemsToYouTubePlaylist = async (playlistId: string, videoId: string, token: string) => {
   try {
     const authToken = token || SYSTEM_YOUTUBE_API_KEY;
-    for (const videoId of videoIds) {
-      await axios.post(`${YOUTUBE_API_URL}/playlistItems`, {
-        snippet: {
-          playlistId: playlistId,
-          resourceId: {
-            kind: 'youtube#video',
-            videoId: videoId
-          }
+    await axios.post(`${YOUTUBE_API_URL}/playlistItems`, {
+      snippet: {
+        playlistId: playlistId,
+        resourceId: {
+          kind: 'youtube#video',
+          videoId: videoId
         }
-      }, {
-        params: {
-          part: 'snippet',
-        },
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-    }
+      }
+    }, {
+      params: {
+        part: 'snippet',
+      },
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
   } catch (error) {
     console.error('Error adding items to YouTube playlist');
     throw sanitizeError(error);
   }
 };
 
-export const searchYouTubeTrack = async (query: string, apiKey: string) => {
+export const searchYouTubeTrack = async (title: string, artist: string, apiKey: string) => {
   try {
     const key = apiKey || SYSTEM_YOUTUBE_API_KEY;
+    const query = `${title} ${artist}`;
     const response = await axios.get(`${YOUTUBE_API_URL}/search`, {
       params: {
         part: 'snippet',
@@ -212,7 +211,7 @@ export const searchYouTubeTrack = async (query: string, apiKey: string) => {
       },
     });
     const items = response.data.items;
-    return items.length > 0 ? items[0] : null;
+    return items.length > 0 ? items[0].id.videoId : null;
   } catch (error) {
     console.error('Error searching YouTube track');
     return null;

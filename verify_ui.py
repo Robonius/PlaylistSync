@@ -7,7 +7,7 @@ async def run():
         page = await browser.new_page(viewport={'width': 1280, 'height': 800})
 
         # Navigate to the app
-        await page.goto('http://localhost:8080')
+        await page.goto('http://localhost:3000')
         await asyncio.sleep(2)  # Wait for rendering
 
         # Take a screenshot of the dark mode (default)
