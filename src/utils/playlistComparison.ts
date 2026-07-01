@@ -1,12 +1,19 @@
-interface Song {
+export interface Song {
   title: string;
   artist: string;
   album: string;
-  duration: number;
+  duration?: number;
   platformId: string;
 }
 
-const comparePlaylists = (spotifySongs: Song[], youtubeSongs: Song[]) => {
+export interface ComparisonResult {
+  common: Song[];
+  spotifyUnique: Song[];
+  youtubeUnique: Song[];
+  totalTracks: number;
+}
+
+export const comparePlaylists = (spotifySongs: Song[], youtubeSongs: Song[]): ComparisonResult => {
   const youtubeSet = new Set(youtubeSongs.map((s) => `${s.title}|${s.artist}`));
   const spotifySet = new Set(spotifySongs.map((s) => `${s.title}|${s.artist}`));
 
@@ -18,7 +25,15 @@ const comparePlaylists = (spotifySongs: Song[], youtubeSongs: Song[]) => {
     (youtubeSong) => !spotifySet.has(`${youtubeSong.title}|${youtubeSong.artist}`)
   );
 
-  return { spotifyUnique, youtubeUnique };
-};
+  // Simple intersection for "common"
+  const common = spotifySongs.filter(
+    (spotifySong) => youtubeSet.has(`${spotifySong.title}|${spotifySong.artist}`)
+  );
 
-export { comparePlaylists };
+  return {
+    common,
+    spotifyUnique,
+    youtubeUnique,
+    totalTracks: spotifySongs.length + youtubeSongs.length - common.length
+  };
+};

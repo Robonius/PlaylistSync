@@ -1,11 +1,12 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, Activity, CheckCircle2, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-const ApiStatus = () => {
+export default function ApiStatusPage() {
   const [lastCheck, setLastCheck] = useState(new Date());
 
   return (
@@ -13,7 +14,7 @@ const ApiStatus = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/">
+            <Link href="/">
               <Button variant="outline" size="icon" className="rounded-none border-2">
                 <ChevronLeft className="h-4 w-4" />
                 <span className="sr-only">Back to Home</span>
@@ -123,6 +124,4 @@ const ApiStatus = () => {
       </div>
     </div>
   );
-};
-
-export default ApiStatus;
+}
