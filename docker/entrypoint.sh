@@ -1,7 +1,10 @@
 #!/bin/sh
 
 # Create the env-config.js file
-echo "window._env_ = {" > /usr/share/nginx/html/env-config.js
+# In Next.js standalone mode, the public folder is in the current directory
+ENV_FILE="./public/env-config.js"
+
+echo "window._env_ = {" > "$ENV_FILE"
 
 # Loop through all environment variables starting with ROBOLAB_
 # and add them to the env-config.js file
@@ -11,10 +14,10 @@ env | grep -E '^ROBOLAB_' | while read -r line; do
   value=$(echo "$line" | cut -d '=' -f 2-)
 
   # Append to the file
-  echo "  $key: \"$value\"," >> /usr/share/nginx/html/env-config.js
+  echo "  $key: \"$value\"," >> "$ENV_FILE"
 done
 
-echo "};" >> /usr/share/nginx/html/env-config.js
+echo "};" >> "$ENV_FILE"
 
-# Execute the CMD (Nginx)
+# Execute the CMD
 exec "$@"

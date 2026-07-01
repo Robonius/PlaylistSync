@@ -13,6 +13,7 @@ To create a seamless, client-side application that empowers users to sync, backu
 - [x] Implement Dockerization and automated CI/CD for image publishing.
 - [x] Robust Runtime Environment Variable Injection for Docker production images.
 - [x] Testing suite setup with Vitest and Playwright.
+- [x] Full transition to Next.js 15 (App Router) and Bun.
 
 ## Long-Term Vision (The Future)
 - **Apple Music Integration:** Add MusicKit JS support.

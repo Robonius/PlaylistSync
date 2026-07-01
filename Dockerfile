@@ -1,38 +1,40 @@
 # Base image
-FROM node:24-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
+FROM oven/bun:alpine AS base
 WORKDIR /app
 
 # Dependencies layer
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Development environment
 FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-EXPOSE 5173
-CMD ["pnpm", "run", "dev", "--host", "0.0.0.0"]
+EXPOSE 3000
+CMD ["bun", "run", "dev"]
 
 # Build layer
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm run build
+RUN bun run build
 
-# Production server
-FROM nginx:alpine AS prod
-COPY --from=build /app/dist /usr/share/nginx/html
+# Production runner
+FROM base AS prod
+ENV NODE_ENV=production
+
+# Next.js standalone mode output
+# Note: standalone folder includes node_modules
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
 
 # Add custom entrypoint for runtime env vars
 COPY docker/entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 3000
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["bun", "server.js"]
