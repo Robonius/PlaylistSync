@@ -4,7 +4,7 @@ services:
   prod:
     image: ghcr.io/robonius/playlistsync:latest
     ports:
-      - "8080:80"
+      - "8080:3000"
     env_file:
       - .env
     restart: always
