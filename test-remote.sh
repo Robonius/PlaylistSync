@@ -10,7 +10,12 @@ echo "🚀 Starting Remote Image Test Workflow..."
 # 1. Check for .env file
 if [ ! -f .env ]; then
     echo "⚠️  No .env file found. Creating one from .env.example..."
-    cp .env.example .env
+    # Fallback to creating a dummy .env if .env.example doesn't exist
+    if [ -f .env.example ]; then
+        cp .env.example .env
+    else
+        touch .env
+    fi
     echo "Please edit .env with your actual API keys before continuing."
     [[ "$0" == "$BASH_SOURCE" ]] && (exit 1) || (return 1)
 fi
@@ -30,10 +35,11 @@ if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
 fi
 
 # 4. Run container with environment variables
+# Note: Next.js standalone server runs on port 3000 inside the container
 echo "🏃 Starting container on http://localhost:$PORT ..."
 docker run -d \
   --name $CONTAINER_NAME \
-  -p $PORT:80 \
+  -p $PORT:3000 \
   --env-file .env \
   $IMAGE_NAME
 
