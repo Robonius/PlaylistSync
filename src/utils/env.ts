@@ -1,7 +1,7 @@
 /**
  * Utility to get environment variables.
  * Prioritizes runtime variables from window._env_ (injected by Docker entrypoint)
- * falling back to build-time import.meta.env (Vite standard, now using ROBOLAB_ prefix).
+ * falling back to build-time environment variables (Next.js standard, now using ROBOLAB_ prefix).
  */
 
 declare global {
@@ -25,9 +25,11 @@ export const getEnv = (key: string, defaultValue: string = ''): string => {
     return window._env_[normalizedKey];
   }
 
-  // 2. Check build-time environment (import.meta.env)
-  // Vite is now configured to expose variables prefixed with ROBOLAB_
-  const envValue = (import.meta.env as any)[normalizedKey];
+  // 2. Check build-time environment
+  // Next.js exposes environment variables to the browser if they are prefixed with NEXT_PUBLIC_
+  // but since we use ROBOLAB_ prefix, we check process.env which works in SSR and
+  // we ensure they are handled correctly in client side.
+  const envValue = process.env[normalizedKey];
   if (envValue) {
     return envValue;
   }
