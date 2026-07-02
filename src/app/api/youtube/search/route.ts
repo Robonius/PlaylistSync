@@ -24,6 +24,6 @@ export async function GET(request: NextRequest) {
     }
     return nextResponse;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+    return NextResponse.json({ error: 'Error searching YouTube track' }, { status: error.response?.status || 500 });
   }
 }

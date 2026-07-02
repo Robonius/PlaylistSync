@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+    return NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status: error.response?.status || 500 });
   }
 }
 
@@ -59,6 +59,6 @@ export async function POST(request: NextRequest) {
     }
     return nextResponse;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+    return NextResponse.json({ error: 'Error creating YouTube playlist' }, { status: error.response?.status || 500 });
   }
 }
