@@ -59,10 +59,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { initiateSpotifyAuth, initiateGoogleAuth } from '@/utils/oauth';
-import { getEnv } from '@/utils/env';
+import { useRuntimeConfig } from '@/components/runtime-config-provider';
 
 export default function IndexContent() {
   const searchParams = useSearchParams();
+  const runtimeConfig = useRuntimeConfig();
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -94,11 +95,11 @@ export default function IndexContent() {
   }, [searchParams]);
 
   const handleSpotifyAuth = () => {
-    initiateSpotifyAuth(getEnv('SPOTIFY_CLIENT_ID'), window.location.origin + '/api/auth/callback/spotify');
+    initiateSpotifyAuth(runtimeConfig.SPOTIFY_CLIENT_ID, window.location.origin + '/api/auth/callback/spotify');
   };
 
   const handleGoogleAuth = () => {
-    initiateGoogleAuth(getEnv('GOOGLE_CLIENT_ID'), window.location.origin + '/api/auth/callback/google');
+    initiateGoogleAuth(runtimeConfig.GOOGLE_CLIENT_ID, window.location.origin + '/api/auth/callback/google');
   };
 
   const handleSync = async () => {

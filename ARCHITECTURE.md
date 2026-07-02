@@ -19,10 +19,10 @@ For a "vibe coder" building a fast, client-side, API-heavy tool, the chosen stac
 This project strictly follows a **"No Baking"** policy for sensitive information like API keys.
 
 - **The Problem:** Standard Next.js builds can embed environment variables into the client-side bundles.
-- **The Solution:** We use a robust runtime injection system with a custom `ROBOLAB_` prefix.
-  1. **Runtime Injection:** All configuration must be prefixed with `ROBOLAB_`. The `NEXT_PUBLIC_` prefix is used with caution to avoid unintended build-time baking.
-  2. **Docker Entrypoint:** When the container starts, `docker/entrypoint.sh` reads `ROBOLAB_` variables from the container environment and generates a `public/env-config.js` file.
-  3. **Runtime Prioritization:** The app uses `src/utils/env.ts` to prioritize values from `window._env_` (injected at runtime) over any build-time fallbacks.
+- **The Solution:** We use a Next.js-native runtime hydration system.
+  1. **Runtime Hydration:** Non-sensitive environment variables (like Client IDs) are read on the server during the Root Layout render and passed to a client-side `RuntimeConfigProvider`.
+  2. **No Build-Time Inlining:** By avoiding the `NEXT_PUBLIC_` prefix and reading variables in a server-side layout, we ensure they are fetched from the actual container environment at request time.
+  3. **Runtime Prioritization:** Client components use the `useRuntimeConfig` hook to access these variables, ensuring consistency across environments using a single Docker image.
   4. **Build Safety:** `.env` and `.env.local` are included in `.dockerignore` to prevent local secrets from reaching the build context.
 
 ## Containerization & CI/CD
