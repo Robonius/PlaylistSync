@@ -21,6 +21,14 @@ A high-precision React application for synchronizing and comparing playlists acr
 
 ## 🔐 Authentication Setup
 
+> [!IMPORTANT]
+> **Secure Context Required**: This application uses the Web Crypto API for PKCE (Proof Key for Code Exchange). Browsers restrict this API to **Secure Contexts**. To use the OAuth connect features, you MUST access the application via:
+> - `localhost` or `127.0.0.1`
+> - An `https://` URL
+>
+> Accessing the application via a local IP address (e.g., `http://192.168.x.x`) over HTTP will cause the connection buttons to fail with a security error.
+
+
 This application uses **OAuth 2.0 with PKCE** for secure, client-side authentication.
 
 ### 1. Spotify Setup
@@ -66,7 +74,7 @@ The Docker image supports runtime environment injection via standard environment
 
 - **Security**: Mandatory `type="password"` for all sensitive inputs. Sanitize CSV exports to prevent formula injection.
 - **Accessibility**: ARIA-compliant components and robust keyboard navigation.
-- **Code Health**: Standardized error sanitization to prevent sensitive header leakage. NO `VITE_` variables allowed.
+- **Code Health**: Standardized error sanitization to prevent sensitive header leakage.
 
 ---
 *© 2026 RoboLab Systems // System Revision 3.0.0*
