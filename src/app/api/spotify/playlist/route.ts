@@ -33,6 +33,6 @@ export async function GET(request: NextRequest) {
     }
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+    return NextResponse.json({ error: 'Error fetching Spotify playlist' }, { status: error.response?.status || 500 });
   }
 }
