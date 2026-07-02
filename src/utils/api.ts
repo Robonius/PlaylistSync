@@ -1,194 +1,48 @@
 import axios from 'axios';
-import { getEnv } from './env';
 import { sanitizeError } from './sanitizeError';
 
-// These URLs can be customized at runtime but have sensible defaults.
-const SPOTIFY_API_URL = getEnv('SPOTIFY_API_URL', 'https://api.spotify.com/v1');
-const YOUTUBE_API_URL = getEnv('YOUTUBE_API_URL', 'https://www.googleapis.com/youtube/v3');
-
-// These keys are intended to be injected at runtime.
-const SYSTEM_SPOTIFY_API_KEY = getEnv('SPOTIFY_API_KEY');
-const SYSTEM_YOUTUBE_API_KEY = getEnv('YOUTUBE_API_KEY');
-
-export const getSpotifyPlaylist = async (playlistId: string, spotifyToken: string) => {
+export const getSpotifyPlaylist = async (playlistId: string) => {
   try {
-    const token = spotifyToken || SYSTEM_SPOTIFY_API_KEY;
-    console.log('Fetching Spotify playlist with ID:', playlistId);
-    let url: string | null = `${SPOTIFY_API_URL}/playlists/${playlistId}/tracks`;
-    let allItems: any[] = [];
-
-    while (url) {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      allItems = allItems.concat(response.data.items);
-      url = response.data.next;
-    }
-
-    const tracks = allItems.map(item => ({
-      title: item.track?.name || 'Unknown',
-      artist: item.track?.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
-      album: item.track?.album?.name || 'Unknown',
-      platformId: item.track?.id || '',
-    }));
-    return tracks;
+    const response = await axios.get('/api/spotify/playlist', {
+      params: { playlistId }
+    });
+    return response.data;
   } catch (error) {
     console.error('Error fetching Spotify playlist');
     throw sanitizeError(error);
   }
 };
 
-export const getYouTubePlaylist = async (playlistId: string, youtubeApiKey: string) => {
+export const getYouTubePlaylist = async (playlistId: string) => {
   try {
-    const key = youtubeApiKey || SYSTEM_YOUTUBE_API_KEY;
-    console.log('Fetching YouTube playlist with ID:', playlistId);
-    let allItems: any[] = [];
-    let nextPageToken = '';
-
-    do {
-      const response = await axios.get(`${YOUTUBE_API_URL}/playlistItems`, {
-        params: {
-          part: 'snippet,contentDetails',
-          maxResults: 50,
-          playlistId: playlistId,
-          key: key,
-          pageToken: nextPageToken
-        },
-      });
-      allItems = allItems.concat(response.data.items);
-      nextPageToken = response.data.nextPageToken;
-    } while (nextPageToken);
-
-    const tracks = allItems.map(item => ({
-      title: item.snippet?.title || 'Unknown',
-      artist: item.snippet?.videoOwnerChannelTitle || 'Unknown',
-      album: 'YouTube Video',
-      platformId: item.contentDetails?.videoId || '',
-    }));
-    return tracks;
+    const response = await axios.get('/api/youtube/playlist', {
+      params: { playlistId }
+    });
+    return response.data;
   } catch (error) {
     console.error('Error fetching YouTube playlist');
     throw sanitizeError(error);
   }
 };
 
-export const createSpotifyPlaylist = async (userId: string, title: string, token: string) => {
+export const createYouTubePlaylist = async (title: string, description: string) => {
   try {
-    const authToken = token || SYSTEM_SPOTIFY_API_KEY;
-    const response = await axios.post(`${SPOTIFY_API_URL}/users/${userId}/playlists`, {
-      name: title,
-      description: 'Imported by RoboLab // Sync',
-      public: false,
-    }, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+    const response = await axios.post('/api/youtube/playlist', {
+      title,
+      description
     });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating Spotify playlist');
-    throw sanitizeError(error);
-  }
-};
-
-export const addItemsToSpotifyPlaylist = async (playlistId: string, trackUris: string[], token: string) => {
-  try {
-    const authToken = token || SYSTEM_SPOTIFY_API_KEY;
-    await axios.post(`${SPOTIFY_API_URL}/playlists/${playlistId}/tracks`, {
-      uris: trackUris,
-    }, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-  } catch (error) {
-    console.error('Error adding items to Spotify playlist');
-    throw sanitizeError(error);
-  }
-};
-
-export const searchSpotifyTrack = async (query: string, token: string) => {
-  try {
-    const authToken = token || SYSTEM_SPOTIFY_API_KEY;
-    const response = await axios.get(`${SPOTIFY_API_URL}/search`, {
-      params: {
-        q: query,
-        type: 'track',
-        limit: 1,
-      },
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    const items = response.data.tracks.items;
-    return items.length > 0 ? items[0] : null;
-  } catch (error) {
-    console.error('Error searching Spotify track');
-    return null;
-  }
-};
-
-export const getSpotifyUserId = async (token: string) => {
-  try {
-    const authToken = token || SYSTEM_SPOTIFY_API_KEY;
-    const response = await axios.get(`${SPOTIFY_API_URL}/me`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    return response.data.id;
-  } catch (error) {
-    console.error('Error getting Spotify user ID');
-    throw sanitizeError(error);
-  }
-};
-
-export const createYouTubePlaylist = async (title: string, description: string, token: string) => {
-  try {
-    const authToken = token || SYSTEM_YOUTUBE_API_KEY;
-    const response = await axios.post(`${YOUTUBE_API_URL}/playlists`, {
-      snippet: {
-        title: title,
-        description: description || 'Imported by RoboLab // Sync'
-      },
-      status: {
-        privacyStatus: 'private'
-      }
-    }, {
-      params: {
-        part: 'snippet,status',
-      },
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    return response.data.id;
+    return response.data.playlistId;
   } catch (error) {
     console.error('Error creating YouTube playlist');
     throw sanitizeError(error);
   }
 };
 
-export const addItemsToYouTubePlaylist = async (playlistId: string, videoId: string, token: string) => {
+export const addItemsToYouTubePlaylist = async (playlistId: string, videoId: string) => {
   try {
-    const authToken = token || SYSTEM_YOUTUBE_API_KEY;
-    await axios.post(`${YOUTUBE_API_URL}/playlistItems`, {
-      snippet: {
-        playlistId: playlistId,
-        resourceId: {
-          kind: 'youtube#video',
-          videoId: videoId
-        }
-      }
-    }, {
-      params: {
-        part: 'snippet',
-      },
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+    await axios.post('/api/youtube/playlist/items', {
+      playlistId,
+      videoId
     });
   } catch (error) {
     console.error('Error adding items to YouTube playlist');
@@ -196,24 +50,29 @@ export const addItemsToYouTubePlaylist = async (playlistId: string, videoId: str
   }
 };
 
-export const searchYouTubeTrack = async (title: string, artist: string, apiKey: string) => {
+export const searchYouTubeTrack = async (title: string, artist: string) => {
   try {
-    const key = apiKey || SYSTEM_YOUTUBE_API_KEY;
-    const query = `${title} ${artist}`;
-    const response = await axios.get(`${YOUTUBE_API_URL}/search`, {
-      params: {
-        part: 'snippet',
-        q: query,
-        type: 'video',
-        videoCategoryId: '10',
-        key: key,
-        maxResults: 1
-      },
+    const q = `${title} ${artist}`;
+    const response = await axios.get('/api/youtube/search', {
+      params: { q }
     });
-    const items = response.data.items;
-    return items.length > 0 ? items[0].id.videoId : null;
+    return response.data.videoId;
   } catch (error) {
     console.error('Error searching YouTube track');
     return null;
   }
 };
+
+export const checkAuthStatus = async () => {
+  try {
+    const response = await axios.get('/api/auth/status');
+    return response.data;
+  } catch (error) {
+    return { spotify: false, youtube: false };
+  }
+};
+
+export const getSpotifyUserId = async () => '';
+export const createSpotifyPlaylist = async () => ({});
+export const searchSpotifyTrack = async () => null;
+export const addItemsToSpotifyPlaylist = async () => {};

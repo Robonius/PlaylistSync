@@ -2,9 +2,6 @@
  * OAuth 2.0 PKCE Helpers for Spotify and Google
  */
 
-/**
- * Generates a random string for the code verifier
- */
 const generateRandomString = (length: number) => {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   const values = crypto.getRandomValues(new Uint8Array(length));
@@ -13,28 +10,19 @@ const generateRandomString = (length: number) => {
     .join('');
 };
 
-/**
- * Hashes the code verifier using SHA-256
- */
 const sha256 = async (plain: string) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
   return window.crypto.subtle.digest('SHA-256', data);
 };
 
-/**
- * Base64url encodes an array buffer
- */
 const base64urlencode = (a: ArrayBuffer) => {
-  return btoa(String.fromCharCode.apply(null, new Uint8Array(a) as any))
+  return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(a))))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 };
 
-/**
- * Generates a code challenge from a code verifier
- */
 export const generateCodeChallenge = async (codeVerifier: string) => {
   const hashed = await sha256(codeVerifier);
   return base64urlencode(hashed);
@@ -45,10 +33,11 @@ export const initiateSpotifyAuth = async (clientId: string, redirectUri: string)
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   const state = generateRandomString(32);
 
-  localStorage.setItem('spotify_code_verifier', codeVerifier);
-  localStorage.setItem('spotify_auth_state', state);
+  // Use document.cookie for PKCE state so backend can read it
+  document.cookie = "spotify_code_verifier=" + codeVerifier + "; path=/; max-age=3600; SameSite=Lax; Secure";
+  document.cookie = "spotify_auth_state=" + state + "; path=/; max-age=3600; SameSite=Lax; Secure";
 
-  const scope = 'playlist-read-private playlist-modify-public playlist-modify-private';
+  const scope = 'playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
   const authUrl = new URL('https://accounts.spotify.com/authorize');
 
   const params = {
@@ -61,7 +50,8 @@ export const initiateSpotifyAuth = async (clientId: string, redirectUri: string)
     state,
   };
 
-  authUrl.search = new URLSearchParams(params).toString();
+  const searchParams = new URLSearchParams(params);
+  authUrl.search = searchParams.toString();
   window.location.href = authUrl.toString();
 };
 
@@ -70,10 +60,9 @@ export const initiateGoogleAuth = async (clientId: string, redirectUri: string) 
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   const state = generateRandomString(32);
 
-  localStorage.setItem('google_code_verifier', codeVerifier);
-  localStorage.setItem('google_auth_state', state);
+  document.cookie = "google_code_verifier=" + codeVerifier + "; path=/; max-age=3600; SameSite=Lax; Secure";
+  document.cookie = "google_auth_state=" + state + "; path=/; max-age=3600; SameSite=Lax; Secure";
 
-  // Scopes for YouTube write access
   const scope = 'https://www.googleapis.com/auth/youtube';
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
@@ -84,27 +73,49 @@ export const initiateGoogleAuth = async (clientId: string, redirectUri: string) 
     scope,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    access_type: 'offline', // Note: For Web apps with PKCE, refresh tokens might be limited
+    access_type: 'offline',
     prompt: 'consent',
     state,
   };
 
-  authUrl.search = new URLSearchParams(params).toString();
+  const searchParams = new URLSearchParams(params);
+  authUrl.search = searchParams.toString();
   window.location.href = authUrl.toString();
 };
 
-export const exchangeSpotifyCodeForToken = async (clientId: string, code: string, redirectUri: string) => {
-  const codeVerifier = localStorage.getItem('spotify_code_verifier');
-
+export const exchangeSpotifyCodeForToken = async (clientId: string, clientSecret: string, code: string, redirectUri: string, codeVerifier: string) => {
   const params = new URLSearchParams({
-    client_id: clientId,
     grant_type: 'authorization_code',
     code,
     redirect_uri: redirectUri,
-    code_verifier: codeVerifier || '',
+    code_verifier: codeVerifier,
   });
 
+  const authHeader = btoa(clientId + ":" + clientSecret);
+
   const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + authHeader
+    },
+    body: params,
+  });
+
+  return response.json();
+};
+
+export const exchangeGoogleCodeForToken = async (clientId: string, clientSecret: string, code: string, redirectUri: string, codeVerifier: string) => {
+  const params = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: 'authorization_code',
+    code,
+    redirect_uri: redirectUri,
+    code_verifier: codeVerifier,
+  });
+
+  const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -115,15 +126,32 @@ export const exchangeSpotifyCodeForToken = async (clientId: string, code: string
   return response.json();
 };
 
-export const exchangeGoogleCodeForToken = async (clientId: string, code: string, redirectUri: string) => {
-  const codeVerifier = localStorage.getItem('google_code_verifier');
+export const refreshSpotifyToken = async (clientId: string, clientSecret: string, refreshToken: string) => {
+  const params = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+  });
 
+  const authHeader = btoa(clientId + ":" + clientSecret);
+
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + authHeader
+    },
+    body: params,
+  });
+
+  return response.json();
+};
+
+export const refreshGoogleToken = async (clientId: string, clientSecret: string, refreshToken: string) => {
   const params = new URLSearchParams({
     client_id: clientId,
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: redirectUri,
-    code_verifier: codeVerifier || '',
+    client_secret: clientSecret,
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
   });
 
   const response = await fetch('https://oauth2.googleapis.com/token', {

@@ -6,13 +6,10 @@ import React, { useState, useEffect } from 'react';
 import {
   getSpotifyPlaylist,
   getYouTubePlaylist,
-  getSpotifyUserId,
-  createSpotifyPlaylist,
-  searchSpotifyTrack,
-  addItemsToSpotifyPlaylist,
   createYouTubePlaylist,
   searchYouTubeTrack,
-  addItemsToYouTubePlaylist
+  addItemsToYouTubePlaylist,
+  checkAuthStatus
 } from '@/utils/api';
 import { comparePlaylists, ComparisonResult } from '@/utils/playlistComparison';
 import { exportToCSV } from '@/utils/csvExport';
@@ -61,21 +58,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { exchangeSpotifyCodeForToken, exchangeGoogleCodeForToken, initiateSpotifyAuth, initiateGoogleAuth } from '@/utils/oauth';
+import { initiateSpotifyAuth, initiateGoogleAuth } from '@/utils/oauth';
 import { getEnv } from '@/utils/env';
 
 export default function IndexContent() {
   const searchParams = useSearchParams();
   const [spotifyUrl, setSpotifyUrl] = useState('');
-  const [spotifyToken, setSpotifyToken] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [youtubeApiKey, setYoutubeApiKey] = useState('');
-  const [useOAuth, setUseOAuth] = useState(true);
-
-  const [spotifySongs, setSpotifySongs] = useState<any[]>([]);
-  const [youtubeSongs, setYoutubeSongs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'comparison' | 'spotify' | 'youtube'>('comparison');
+  const [authStatus, setAuthStatus] = useState({ spotify: false, youtube: false });
+  const [spotifySongs, setSpotifySongs] = useState<any[]>([]);
+  const [youtubeSongs, setYoutubeSongs] = useState<any[]>([]);
   const [comparisonResults, setComparisonResults] = useState<ComparisonResult>({
     common: [],
     spotifyUnique: [],
@@ -86,76 +80,57 @@ export default function IndexContent() {
   const [activeTab, setActiveTab] = useState('sync');
 
   useEffect(() => {
-    // Load tokens from localStorage on mount - SAFE in useEffect
-    if (typeof window !== 'undefined') {
-      setSpotifyToken(localStorage.getItem('spotify_access_token') || '');
-      setYoutubeApiKey(localStorage.getItem('google_access_token') || '');
-    }
+    const fetchStatus = async () => {
+      const status = await checkAuthStatus();
+      setAuthStatus(status);
+    };
+    fetchStatus();
 
-    const code = searchParams.get('code');
-    const state = searchParams.get('state'); // In a real app, verify state
-
-    if (code) {
-      const isSpotify = typeof window !== 'undefined' && !localStorage.getItem('google_code_verifier');
-
-      const handleAuth = async () => {
-        try {
-          if (isSpotify) {
-            const data = await exchangeSpotifyCodeForToken(getEnv('SPOTIFY_CLIENT_ID'), code, window.location.origin);
-            if (data.access_token) {
-              localStorage.setItem('spotify_access_token', data.access_token);
-              setSpotifyToken(data.access_token);
-              showSuccess('Spotify connected successfully');
-            }
-          } else {
-            const data = await exchangeGoogleCodeForToken(getEnv('GOOGLE_CLIENT_ID'), code, window.location.origin);
-            if (data.access_token) {
-              localStorage.setItem('google_access_token', data.access_token);
-              setYoutubeApiKey(data.access_token);
-              showSuccess('YouTube connected successfully');
-            }
-          }
-          // Clean up URL
-          window.history.replaceState({}, document.title, "/");
-        } catch (error) {
-          showError('Authentication failed');
-          console.error(error);
-        } finally {
-          localStorage.removeItem('spotify_code_verifier');
-          localStorage.removeItem('google_code_verifier');
-        }
-      };
-
-      handleAuth();
+    const error = searchParams.get('error');
+    if (error) {
+      showError('Authentication failed: ' + error);
+      window.history.replaceState({}, document.title, "/");
     }
   }, [searchParams]);
 
   const handleSpotifyAuth = () => {
-    initiateSpotifyAuth(getEnv('SPOTIFY_CLIENT_ID'), window.location.origin);
+    initiateSpotifyAuth(getEnv('SPOTIFY_CLIENT_ID'), window.location.origin + '/api/auth/callback/spotify');
   };
 
   const handleGoogleAuth = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('spotify_code_verifier'); // Ensure we don't have conflicting verifiers
-    }
-    initiateGoogleAuth(getEnv('GOOGLE_CLIENT_ID'), window.location.origin);
+    initiateGoogleAuth(getEnv('GOOGLE_CLIENT_ID'), window.location.origin + '/api/auth/callback/google');
   };
 
   const handleSync = async () => {
-    if (!spotifyUrl || (!youtubeUrl && activeTab === 'sync')) {
-      showError('Please provide both playlist URLs');
+    if (!spotifyUrl && !youtubeUrl) {
+      showError('Please provide at least one playlist URL');
       return;
     }
 
     setIsLoading(true);
     try {
-      const sSongs = await getSpotifyPlaylist(spotifyUrl, spotifyToken);
-      setSpotifySongs(sSongs);
+      let sSongs: any[] = [];
+      if (spotifyUrl) {
+        const playlistId = spotifyUrl.split('/').pop()?.split('?')[0];
+        if (playlistId) {
+          sSongs = await getSpotifyPlaylist(playlistId);
+          setSpotifySongs(sSongs);
+        }
+      } else {
+        setSpotifySongs([]);
+      }
 
       let ySongs: any[] = [];
       if (youtubeUrl) {
-        ySongs = await getYouTubePlaylist(youtubeUrl, youtubeApiKey);
+        // Handle both full URLs and potential list IDs
+        let playlistId = youtubeUrl;
+        if (youtubeUrl.includes('list=')) {
+          playlistId = new URLSearchParams(new URL(youtubeUrl).search).get('list') || youtubeUrl;
+        }
+        ySongs = await getYouTubePlaylist(playlistId);
         setYoutubeSongs(ySongs);
+      } else {
+        setYoutubeSongs([]);
       }
 
       const results = comparePlaylists(sSongs, ySongs);
@@ -177,16 +152,12 @@ export default function IndexContent() {
 
     setIsLoading(true);
     try {
-      const playlistId = await createYouTubePlaylist(
-        'Synced from Spotify',
-        'Created by RoboLab',
-        youtubeApiKey
-      );
+      const playlistId = await createYouTubePlaylist('Synced from Spotify', 'Created by RoboLab');
 
       for (const song of comparisonResults.spotifyUnique) {
-        const videoId = await searchYouTubeTrack(song.title, song.artist, youtubeApiKey);
+        const videoId = await searchYouTubeTrack(song.title, song.artist);
         if (videoId) {
-          await addItemsToYouTubePlaylist(playlistId, videoId, youtubeApiKey);
+          await addItemsToYouTubePlaylist(playlistId, videoId);
         }
       }
       showSuccess('Transfer to YouTube complete!');
@@ -209,7 +180,6 @@ export default function IndexContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary selection:text-primary-foreground">
-      {/* HUD Header */}
       <header className="border-b-2 border-primary/20 sticky top-0 z-50 bg-background/80 backdrop-blur-md">
         <div className="container flex items-center justify-between h-16 px-4 mx-auto">
           <div className="flex items-center gap-3">
@@ -240,7 +210,7 @@ export default function IndexContent() {
                 onClick={handleSpotifyAuth}
               >
                 <Music2 className="h-3 w-3 mr-2 text-[#1DB954]" />
-                {spotifyToken ? 'Spotify Active' : 'Connect Spotify'}
+                {authStatus.spotify ? 'Spotify Connected' : 'Connect Spotify'}
               </Button>
               <Button
                 variant="outline"
@@ -249,7 +219,7 @@ export default function IndexContent() {
                 onClick={handleGoogleAuth}
               >
                 <Youtube className="h-3 w-3 mr-2 text-[#FF0000]" />
-                {youtubeApiKey ? 'YouTube Active' : 'Connect YouTube'}
+                {authStatus.youtube ? 'YouTube Connected' : 'Connect YouTube'}
               </Button>
             </div>
           </nav>
@@ -258,8 +228,6 @@ export default function IndexContent() {
 
       <main className="flex-grow container px-4 py-8 mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-          {/* Controls Column */}
           <div className="lg:col-span-4 space-y-6">
             <Card className="rounded-none border-2 shadow-[4px_4px_0px_0px_rgba(var(--primary-rgb),0.1)]">
               <CardHeader className="border-b bg-muted/30 py-4">
@@ -283,27 +251,6 @@ export default function IndexContent() {
                     placeholder="https://www.youtube.com/playlist?list=..."
                     required
                   />
-
-                  {!useOAuth && (
-                    <div className="p-3 border-2 border-dashed border-orange-500/50 bg-orange-500/5 space-y-3">
-                      <div className="flex items-center gap-2 text-orange-500">
-                        <AlertCircle className="h-4 w-4" />
-                        <span className="text-[10px] font-bold uppercase">Manual Token Override</span>
-                      </div>
-                      <InputField
-                        label="Spotify Token"
-                        value={spotifyToken}
-                        onChange={setSpotifyToken}
-                        type="password"
-                      />
-                      <InputField
-                        label="YouTube API Key"
-                        value={youtubeApiKey}
-                        onChange={setYoutubeApiKey}
-                        type="password"
-                      />
-                    </div>
-                  )}
                 </div>
 
                 <div className="pt-2">
@@ -323,15 +270,6 @@ export default function IndexContent() {
                   </Button>
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/10 border-t py-3">
-                <button
-                  onClick={() => setUseOAuth(!useOAuth)}
-                  className="text-[9px] uppercase font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Lock className="h-3 w-3" />
-                  {useOAuth ? 'Switch to Manual Auth' : 'Switch to OAuth 2.0 (Recommended)'}
-                </button>
-              </CardFooter>
             </Card>
 
             <Card className="rounded-none border-2">
@@ -363,7 +301,6 @@ export default function IndexContent() {
             </Card>
           </div>
 
-          {/* Results Column */}
           <div className="lg:col-span-8">
             <Tabs defaultValue="sync" className="w-full" onValueChange={setActiveTab}>
               <div className="flex items-center justify-between mb-4 bg-muted/30 border-2 p-1">
@@ -399,7 +336,6 @@ export default function IndexContent() {
               <div className="space-y-4">
                 {activeTab === 'sync' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Spotify Pane */}
                     <Card className="rounded-none border-2 flex flex-col h-[600px]">
                       <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
                         <div className="flex items-center justify-between">
@@ -454,7 +390,6 @@ export default function IndexContent() {
                       </CardContent>
                     </Card>
 
-                    {/* YouTube Pane */}
                     <Card className="rounded-none border-2 flex flex-col h-[600px]">
                       <CardHeader className="bg-muted/50 border-b py-3 shrink-0">
                         <div className="flex items-center justify-between">

@@ -1,0 +1,64 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getGoogleToken } from '@/lib/backend-auth';
+import axios from 'axios';
+
+export async function GET(request: NextRequest) {
+  const playlistId = request.nextUrl.searchParams.get('playlistId');
+  if (!playlistId) return NextResponse.json({ error: 'Missing playlistId' }, { status: 400 });
+
+  const { token, refreshed, newData } = await getGoogleToken();
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    let allItems: any[] = [];
+    let nextPageToken = '';
+    do {
+      const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
+        params: { part: 'snippet,contentDetails', maxResults: 50, playlistId: playlistId, pageToken: nextPageToken },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      allItems = allItems.concat(response.data.items);
+      nextPageToken = response.data.nextPageToken;
+    } while (nextPageToken);
+    const tracks = allItems.map(item => ({
+      title: item.snippet?.title || 'Unknown',
+      artist: item.snippet?.videoOwnerChannelTitle || 'Unknown',
+      album: 'YouTube Video',
+      platformId: item.contentDetails?.videoId || '',
+    }));
+    const response = NextResponse.json(tracks);
+    if (refreshed && newData) {
+      response.cookies.set('google_access_token', newData.access_token, {
+        httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
+      });
+    }
+    return response;
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const { title, description } = await request.json();
+  const { token, refreshed, newData } = await getGoogleToken();
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const response = await axios.post(`https://www.googleapis.com/youtube/v3/playlists`, {
+      snippet: { title: title, description: description || 'Imported by RoboLab // Sync' },
+      status: { privacyStatus: 'private' }
+    }, {
+      params: { part: 'snippet,status' },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const nextResponse = NextResponse.json({ playlistId: response.data.id });
+    if (refreshed && newData) {
+      nextResponse.cookies.set('google_access_token', newData.access_token, {
+        httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
+      });
+    }
+    return nextResponse;
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: error.response?.status || 500 });
+  }
+}
