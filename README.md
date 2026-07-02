@@ -9,7 +9,7 @@ A high-precision React application for synchronizing and comparing playlists acr
    bun install
    ```
 2. **Configure Environment**:
-   Copy `.env.example` to `.env`. All variables MUST be prefixed with `ROBOLAB_`.
+   Copy `.env.example` to `.env`. All variables MUST be using standard names (no prefix).
    ```bash
    cp .env.example .env
    ```
@@ -35,7 +35,7 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 2. Create a new App.
 3. In the App settings, add your **Redirect URI** (e.g., `http://localhost:8080`).
-4. Copy the **Client ID** and add it to your `.env` as `ROBOLAB_SPOTIFY_CLIENT_ID`.
+4. Copy the **Client ID** and add it to your `.env` as `SPOTIFY_CLIENT_ID`.
 
 ### 2. Google / YouTube Setup
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
@@ -45,7 +45,7 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 5. Go to **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**.
 6. Select **Web application**.
 7. Add your **Authorized redirect URIs** (e.g., `http://localhost:8080`).
-8. Copy the **Client ID** and add it to your `.env` as `ROBOLAB_GOOGLE_CLIENT_ID`.
+8. Copy the **Client ID** and add it to your `.env` as `GOOGLE_CLIENT_ID`.
 
 ## 🛠 Features
 
@@ -65,10 +65,10 @@ docker-compose up prod
 ```
 
 ### Environment Variables (Runtime)
-The Docker image supports runtime environment injection via `ROBOLAB_` prefixed variables:
-- `ROBOLAB_SPOTIFY_CLIENT_ID`
-- `ROBOLAB_GOOGLE_CLIENT_ID`
-- `ROBOLAB_REDIRECT_URI`
+The Docker image supports runtime environment injection via standard environment variables:
+- `SPOTIFY_CLIENT_ID`
+- `GOOGLE_CLIENT_ID`
+- `REDIRECT_URI`
 
 ## ⚖️ Standards
 

@@ -59,10 +59,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { initiateSpotifyAuth, initiateGoogleAuth } from '@/utils/oauth';
-import { getEnv } from '@/utils/env';
+import { useRuntimeConfig } from '@/components/runtime-config-provider';
 
 export default function IndexContent() {
   const searchParams = useSearchParams();
+  const runtimeConfig = useRuntimeConfig();
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);

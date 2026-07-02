@@ -47,10 +47,11 @@ services:
     ports:
       - "8080:3000"
     environment:
-      - ROBOLAB_SPOTIFY_API_URL=https://api.spotify.com/v1
-      - ROBOLAB_YOUTUBE_API_URL=https://www.googleapis.com/youtube/v3
-      - ROBOLAB_SPOTIFY_ACCESS_TOKEN=your_token_here
-      - ROBOLAB_YOUTUBE_API_KEY=your_key_here
+      - REDIRECT_URI=https://your-domain.com
+      - SPOTIFY_CLIENT_ID=your_client_id
+      - SPOTIFY_CLIENT_SECRET=your_client_secret
+      - GOOGLE_CLIENT_ID=your_client_id
+      - GOOGLE_CLIENT_SECRET=your_client_secret
     restart: always
 ```
 
@@ -62,19 +63,19 @@ services:
 
 When the container is running, verify the following:
 
-- [ ] **Runtime Env Vars:** Open the browser console and type `window._env_`. It should contain the keys you passed via Docker.
+- [ ] **Runtime Hydration:** The app correctly loads Client IDs from the container environment.
 - [ ] **UI Loading:** The dashboard appears without 404 errors for assets.
 - [ ] **API Integration:**
-    - [ ] Try fetching a Spotify playlist (using a valid token).
-    - [ ] Try searching for a YouTube track.
-- [ ] **Logs:** Check `docker logs playlistsync-test` for any Nginx or entrypoint errors.
+    - [ ] Try connecting Spotify (OAuth flow).
+    - [ ] Try connecting YouTube (OAuth flow).
+- [ ] **Logs:** Check `docker logs playlistsync-test` for any startup errors.
 
 ---
 
 ## 5. Why this works (Technical Note)
 
-Standard Next.js apps "bake" environment variables into the static JS files at build time. To allow you to change API keys **without rebuilding the image**, we use a custom entrypoint (`docker/entrypoint.sh`) that:
-1. Reads all `ROBOLAB_` variables from the container environment.
-2. Generates a `env-config.js` file inside the container.
-3. Injects this script into `index.html`.
-4. The app uses `src/utils/env.ts` to prioritize these runtime values.
+Standard Next.js apps often "bake" environment variables into the static JS files at build time (using the `NEXT_PUBLIC_` prefix). To allow you to change API keys **without rebuilding the image**, we use a **Runtime Hydration** pattern:
+1. The Root Layout (Server Component) reads environment variables (like `SPOTIFY_CLIENT_ID`) directly from the container environment at request time.
+2. These values are passed to a client-side `RuntimeConfigProvider`.
+3. Client components access these values via the `useRuntimeConfig` hook.
+4. Sensitive secrets (like `SPOTIFY_CLIENT_SECRET`) never leave the server.
