@@ -18,10 +18,7 @@
 **Learning:** Next.js 15 standalone mode requires copying `.next/standalone` and `.next/static` to the runner image. Runtime environment variable injection ("No Baking" policy) in Next.js requires a client-side entrypoint (e.g., `public/env-config.js`) and a corresponding script tag in the root layout (`src/app/layout.tsx`) to load the variables into `window._env_`.
 **Prevention:** Use `oven/bun:alpine` as the base image. Use a custom entrypoint (`docker/entrypoint.sh`) to generate `public/env-config.js` from environment variables. Ensure the runner user has write access to the `public` directory. Update `src/utils/env.ts` to prioritize `window._env_` over `process.env`.
 
-## [2026-07-02] Web Crypto API & Secure Contexts
-**Vulnerability:** Application features relying on `window.crypto.subtle` (like OAuth PKCE) will fail silently or throw errors when accessed over insecure contexts (e.g., local IP addresses over HTTP).
-**Prevention:**
-1. Always check for the existence of `window.crypto.subtle` before use.
-2. Provide clear, actionable error messages to the user when the API is missing due to an insecure context.
-3. Document deployment requirements (HTTPS/localhost) prominently in the project README.
-4. Use try/catch blocks around OAuth initiation to catch and report these environment-specific failures.
+## 2025-02-27 - [Security] Prevent Information Leakage in API Endpoints
+**Vulnerability:** The application was exposing `error.message` directly in API route handlers (`src/app/api/...`), which could inadvertently leak sensitive system paths, API keys, or stack details wrapped in third-party library error messages (such as `axios`).
+**Learning:** Returning `error.message` directly to the client from unhandled internal or external service exceptions violates safe error handling principles, as it can inadvertently disclose internals.
+**Prevention:** Always replace unhandled or external error messages with hardcoded, generic strings (e.g., `'Error fetching Spotify playlist'`) at the HTTP boundary before sending a response payload to the client.

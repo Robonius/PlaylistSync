@@ -74,7 +74,7 @@ The Docker image supports runtime environment injection via `ROBOLAB_` prefixed 
 
 - **Security**: Mandatory `type="password"` for all sensitive inputs. Sanitize CSV exports to prevent formula injection.
 - **Accessibility**: ARIA-compliant components and robust keyboard navigation.
-- **Code Health**: Standardized error sanitization to prevent sensitive header leakage. NO `VITE_` variables allowed.
+- **Code Health**: Standardized error sanitization to prevent sensitive header leakage.
 
 ---
 *© 2026 RoboLab Systems // System Revision 3.0.0*
