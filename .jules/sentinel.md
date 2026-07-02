@@ -17,3 +17,11 @@
 **Issue:** The project's Dockerfile was misconfigured (targeting pnpm instead of Bun) and failed to support Next.js standalone mode and runtime environment variable injection.
 **Learning:** Next.js 15 standalone mode requires copying `.next/standalone` and `.next/static` to the runner image. Runtime environment variable injection ("No Baking" policy) in Next.js requires a client-side entrypoint (e.g., `public/env-config.js`) and a corresponding script tag in the root layout (`src/app/layout.tsx`) to load the variables into `window._env_`.
 **Prevention:** Use `oven/bun:alpine` as the base image. Use a custom entrypoint (`docker/entrypoint.sh`) to generate `public/env-config.js` from environment variables. Ensure the runner user has write access to the `public` directory. Update `src/utils/env.ts` to prioritize `window._env_` over `process.env`.
+
+## [2026-07-02] Web Crypto API & Secure Contexts
+**Vulnerability:** Application features relying on `window.crypto.subtle` (like OAuth PKCE) will fail silently or throw errors when accessed over insecure contexts (e.g., local IP addresses over HTTP).
+**Prevention:**
+1. Always check for the existence of `window.crypto.subtle` before use.
+2. Provide clear, actionable error messages to the user when the API is missing due to an insecure context.
+3. Document deployment requirements (HTTPS/localhost) prominently in the project README.
+4. Use try/catch blocks around OAuth initiation to catch and report these environment-specific failures.
