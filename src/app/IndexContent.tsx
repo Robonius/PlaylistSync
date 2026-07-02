@@ -315,16 +315,20 @@ export default function IndexContent() {
 
                 <div className="flex items-center gap-2 px-2">
                   {activeTab === 'catalog' && (
-                    <div className="flex bg-background border-2 p-0.5">
+                    <div className="flex bg-background border-2 p-0.5" role="group" aria-label="Catalog View Mode">
                       <button
                         onClick={() => setViewMode('spotify')}
-                        className={`px-3 py-1 text-[9px] uppercase font-bold ${viewMode === 'spotify' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        aria-pressed={viewMode === 'spotify'}
+                        aria-label="View Spotify Catalog"
+                        className={`px-3 py-1 text-[9px] uppercase font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${viewMode === 'spotify' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
                       >
                         Spotify
                       </button>
                       <button
                         onClick={() => setViewMode('youtube')}
-                        className={`px-3 py-1 text-[9px] uppercase font-bold ${viewMode === 'youtube' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        aria-pressed={viewMode === 'youtube'}
+                        aria-label="View YouTube Catalog"
+                        className={`px-3 py-1 text-[9px] uppercase font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${viewMode === 'youtube' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
                       >
                         YouTube
                       </button>
@@ -464,14 +468,30 @@ export default function IndexContent() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {(viewMode === 'spotify' ? spotifySongs : youtubeSongs).map((song, i) => (
-                              <TableRow key={i} className="group border-b last:border-0">
-                                <TableCell className="py-2 text-[11px] font-medium leading-tight">{song.title}</TableCell>
-                                <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.artist}</TableCell>
-                                <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.album}</TableCell>
-                                <TableCell className="py-2 text-[9px] text-right font-mono text-muted-foreground/50 px-4">{song.platformId}</TableCell>
+                            {(viewMode === 'spotify' ? spotifySongs : youtubeSongs).length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={4} className="text-center py-20">
+                                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                                    {viewMode === 'spotify' ? (
+                                      <Music2 className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                    ) : (
+                                      <Youtube className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                    )}
+                                    <div className="uppercase text-[10px] font-bold">No catalog data loaded</div>
+                                    <div className="text-[10px] max-w-[200px] opacity-70">Enter a {viewMode === 'spotify' ? 'Spotify' : 'YouTube'} playlist URL and execute sync</div>
+                                  </div>
+                                </TableCell>
                               </TableRow>
-                            ))}
+                            ) : (
+                              (viewMode === 'spotify' ? spotifySongs : youtubeSongs).map((song, i) => (
+                                <TableRow key={i} className="group border-b last:border-0">
+                                  <TableCell className="py-2 text-[11px] font-medium leading-tight">{song.title}</TableCell>
+                                  <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.artist}</TableCell>
+                                  <TableCell className="py-2 text-[10px] text-muted-foreground uppercase">{song.album}</TableCell>
+                                  <TableCell className="py-2 text-[9px] text-right font-mono text-muted-foreground/50 px-4">{song.platformId}</TableCell>
+                                </TableRow>
+                              ))
+                            )}
                           </TableBody>
                         </Table>
                       </ScrollArea>
