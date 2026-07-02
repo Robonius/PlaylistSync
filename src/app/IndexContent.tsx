@@ -93,12 +93,20 @@ export default function IndexContent() {
     }
   }, [searchParams]);
 
-  const handleSpotifyAuth = () => {
-    initiateSpotifyAuth(getEnv('SPOTIFY_CLIENT_ID'), window.location.origin + '/api/auth/callback/spotify');
+  const handleSpotifyAuth = async () => {
+    try {
+      await initiateSpotifyAuth(getEnv('SPOTIFY_CLIENT_ID'), window.location.origin + '/api/auth/callback/spotify');
+    } catch (error: any) {
+      showError(error.message || 'Spotify connection failed');
+    }
   };
 
-  const handleGoogleAuth = () => {
-    initiateGoogleAuth(getEnv('GOOGLE_CLIENT_ID'), window.location.origin + '/api/auth/callback/google');
+  const handleGoogleAuth = async () => {
+    try {
+      await initiateGoogleAuth(getEnv('GOOGLE_CLIENT_ID'), window.location.origin + '/api/auth/callback/google');
+    } catch (error: any) {
+      showError(error.message || 'YouTube connection failed');
+    }
   };
 
   const handleSync = async () => {
@@ -137,8 +145,13 @@ export default function IndexContent() {
       setComparisonResults(results);
       showSuccess('Sync complete!');
     } catch (error: any) {
-      showError('Sync failed: ' + (error.message || 'Unknown error'));
-      console.error(error);
+      if (error.status === 401) {
+        showError('Unauthorized: Please connect your account first');
+      } else {
+        showError('Sync failed: ' + (error.message || 'Unknown error'));
+      }
+      // Standardized error logging to prevent header leakage
+      console.error('Sync error:', error.message || 'Unknown error');
     } finally {
       setIsLoading(false);
     }
@@ -162,7 +175,12 @@ export default function IndexContent() {
       }
       showSuccess('Transfer to YouTube complete!');
     } catch (error: any) {
-      showError('Transfer failed: ' + (error.message || 'Unknown error'));
+      if (error.status === 401) {
+        showError('Unauthorized: Please connect your account first');
+      } else {
+        showError('Transfer failed: ' + (error.message || 'Unknown error'));
+      }
+      console.error('Transfer error:', error.message || 'Unknown error');
     } finally {
       setIsLoading(false);
     }

@@ -21,6 +21,14 @@ A high-precision React application for synchronizing and comparing playlists acr
 
 ## 🔐 Authentication Setup
 
+> [!IMPORTANT]
+> **Secure Context Required**: This application uses the Web Crypto API for PKCE (Proof Key for Code Exchange). Browsers restrict this API to **Secure Contexts**. To use the OAuth connect features, you MUST access the application via:
+> - `localhost` or `127.0.0.1`
+> - An `https://` URL
+>
+> Accessing the application via a local IP address (e.g., `http://192.168.x.x`) over HTTP will cause the connection buttons to fail with a security error.
+
+
 This application uses **OAuth 2.0 with PKCE** for secure, client-side authentication.
 
 ### 1. Spotify Setup
