@@ -1,29 +1,33 @@
 import Papa from 'papaparse';
 
-const sanitizeData = (data: any[]) => {
-  return data.map((row) => {
-    if (Array.isArray(row)) {
-      return row.map((value) => {
-        if (typeof value === 'string' && /^[=+\-@]/.test(value)) {
-          return `'${value}`;
-        }
-        return value;
-      });
-    } else if (typeof row === 'object' && row !== null) {
-      const sanitizedRow: any = {};
-      for (const key in row) {
-        if (Object.prototype.hasOwnProperty.call(row, key)) {
-          let value = row[key];
-          if (typeof value === 'string' && /^[=+\-@]/.test(value)) {
-            value = `'${value}`;
-          }
-          sanitizedRow[key] = value;
-        }
-      }
-      return sanitizedRow;
+const sanitizeValue = (value: any): any => {
+  if (typeof value === 'string') {
+    // Sanitize CSV Injection vulnerabilities (Formula Injection)
+    if (/^[=+\-@\t\r]/.test(value)) {
+      return `'${value}`;
     }
-    return row;
-  });
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizeValue);
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    const sanitizedObj: any = {};
+    for (const key in value) {
+      if (Object.prototype.hasOwnProperty.call(value, key)) {
+        sanitizedObj[key] = sanitizeValue(value[key]);
+      }
+    }
+    return sanitizedObj;
+  }
+
+  return value;
+};
+
+const sanitizeData = (data: any[]) => {
+  return data.map(sanitizeValue);
 };
 
 const exportToCSV = (data: any[], filename: string) => {
@@ -40,4 +44,4 @@ const exportToCSV = (data: any[], filename: string) => {
   document.body.removeChild(link);
 };
 
-export { exportToCSV };
+export { exportToCSV, sanitizeData, sanitizeValue };
