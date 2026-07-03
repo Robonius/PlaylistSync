@@ -28,3 +28,8 @@
 *   **Prevention Strategy**:
     *   Prepend a single quote (`'`) to string values beginning with vulnerable trigger characters.
     *   **Crucial Context**: When utilizing CSV parsers like `PapaParse`, it is vital to recursively sanitize *all* deeply nested properties and arrays within the data object structure *before* passing it to `Papa.unparse()`. Flat, one-level iteration is insufficient because the unparser logic might drill down or unwrap complex objects differently depending on configuration.
+
+## 2025-02-27 - [Security] Prevent SSRF and Path Traversal via URL Interpolation
+**Vulnerability:** The application was interpolating unvalidated user input (`playlistId` from query parameters) directly into backend API URLs (e.g., `https://api.spotify.com/v1/playlists/${playlistId}/tracks`).
+**Learning:** If user input is not strictly validated, attackers can supply path traversal payloads (like `../me`) that manipulate the final URL constructed by the server. This causes the backend to make authorized requests (using the victim's OAuth token) to unintended endpoints (Server-Side Request Forgery). Trusting that the frontend only sends valid IDs is insufficient.
+**Prevention:** Always implement strict server-side validation on route parameters or query parameters before using them to construct backend URLs. Use allowlists or tight regex patterns (e.g., `/^[a-zA-Z0-9]+$/` for Spotify Base62 IDs) to ensure the parameter contains only expected characters and no path traversal sequences.
