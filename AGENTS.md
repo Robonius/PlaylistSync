@@ -6,7 +6,7 @@ Welcome, fellow agent. If you are reading this, you are tasked with expanding or
 - **Runtime:** Bun
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript (Strict typing preferred)
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS (utilize extensively for layout, spacing, colors)
 - **Components:** shadcn/ui + Radix UI
 - **State/Query Management:** React hook state for now, but `@tanstack/react-query` is installed if you need it.
 - **Package Manager:** Bun (Note: The use of pnpm, npm, or yarn is strictly avoided).
@@ -24,13 +24,13 @@ Welcome, fellow agent. If you are reading this, you are tasked with expanding or
 5. **Infrastructure Consistency:** Use the provided Docker configurations (`Dockerfile`, `docker-compose.yml and docker-compose.build.yml`) to ensure local development matches the production environment.
 
 ## UI / UX Directives
-- **shadcn/ui first:** We already have Radix UI primitives and shadcn components installed. Use them. If you need a new shadcn component, look in `src/components/ui/` first to see if it exists. DO NOT edit the files inside `src/components/ui/` directly; they are considered vendor files.
+- **shadcn/ui first:** We ALREADY have ALL Radix UI primitives and shadcn components installed. You don't need to install them again. Use them after importing. If you need a new shadcn component, look in `src/components/ui/` first to see if it exists. DO NOT edit the files inside `src/components/ui/` directly; they are considered vendor files.
 - **Accessibility:**
     - Always add ARIA labels to icon-only buttons.
     - Ensure keyboard accessibility (focus states, tab order).
     - Use the React `useId()` hook to link form inputs with labels.
 - **Dark Mode:** The app defaults to a dark theme. Keep text highly legible (e.g., `text-white` on `bg-gray-900`).
-- **Icons:** Use `lucide-react`.
+- **Icons:** Use `lucide-react` (already installed).
 - **Notifications:** Use the toast notification system (`src/utils/toast.ts`) instead of native browser `alert()`.
 
 ## Security & Logging Standards

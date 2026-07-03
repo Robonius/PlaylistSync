@@ -1,27 +1,20 @@
 import Papa from 'papaparse';
 
-const sanitizeValue = (value: any) => {
+const sanitizeValue = (value: any): any => {
   if (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) {
     return `'${value}`;
   }
-  return value;
-};
-
-const sanitizeData = (data: any[]) => {
-  return data.map((row) => {
-    if (Array.isArray(row)) {
-      return row.map(sanitizeValue);
-    } else if (typeof row === 'object' && row !== null) {
-      const sanitizedRow: any = {};
-      for (const key in row) {
-        if (Object.prototype.hasOwnProperty.call(row, key)) {
-          sanitizedRow[key] = sanitizeValue(row[key]);
-        }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeValue);
+  } else if (typeof value === 'object' && value !== null) {
+    const sanitizedObj: any = {};
+    for (const key in value) {
+      if (Object.prototype.hasOwnProperty.call(value, key)) {
+        sanitizedObj[key] = sanitizeValue(value[key]);
       }
     }
     return sanitizedObj;
   }
-
   return value;
 };
 

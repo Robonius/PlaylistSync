@@ -1,6 +1,10 @@
-# RoboLab // Playlist Sync
+# 🎧 RoboLab // Playlist Sync
 
-A high-precision React application for synchronizing and comparing playlists across Spotify and YouTube Music. Designed for developers and power users who need full control over their musical metadata.
+Welcome to the vibe.
+
+A high-precision, client-side React application for synchronizing and comparing playlists across Spotify and YouTube Music. Designed for vibe coders, music lovers, and power users who demand full control over their musical metadata.
+
+Music shouldn't be trapped in walled gardens. Keep your playlists in sync, back them up to CSV, and let your data flow freely.
 
 ## 🚀 Quick Start
 
@@ -28,13 +32,12 @@ A high-precision React application for synchronizing and comparing playlists acr
 >
 > Accessing the application via a local IP address (e.g., `http://192.168.x.x`) over HTTP will cause the connection buttons to fail with a security error.
 
-
 This application uses **OAuth 2.0 with PKCE** for secure, client-side authentication.
 
 ### 1. Spotify Setup
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 2. Create a new App.
-3. In the App settings, add your **Redirect URI** (e.g., `http://localhost:8080`).
+3. In the App settings, add your **Redirect URI** (e.g., `http://localhost:3000`).
 4. Copy the **Client ID** and add it to your `.env` as `SPOTIFY_CLIENT_ID`.
 
 ### 2. Google / YouTube Setup
@@ -44,7 +47,7 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 4. Go to **APIs & Services > OAuth consent screen** and configure it for "External" usage.
 5. Go to **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**.
 6. Select **Web application**.
-7. Add your **Authorized redirect URIs** (e.g., `http://localhost:8080`).
+7. Add your **Authorized redirect URIs** (e.g., `http://localhost:3000`).
 8. Copy the **Client ID** and add it to your `.env` as `GOOGLE_CLIENT_ID`.
 
 ## 🛠 Features
@@ -53,7 +56,7 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 - **Playlist Diffing**: Identify unique tracks and common matches across platforms.
 - **Recursive Migration**: Search and copy missing tracks from one platform to another.
 - **CSV Support**: Export comparison results or import local playlist data.
-- **Personal Storage**: Tokens are stored in `localStorage` for session persistence.
+- **Personal Storage**: Tokens are stored securely via HTTP-only cookies and PKCE states.
 
 ## 📦 Docker & Deployment
 
@@ -70,11 +73,14 @@ The Docker image supports runtime environment injection via standard environment
 - `GOOGLE_CLIENT_ID`
 - `REDIRECT_URI`
 
-## ⚖️ Standards
+## 📚 Documentation & The Vibe
 
-- **Security**: Mandatory `type="password"` for all sensitive inputs. Sanitize CSV exports to prevent formula injection.
-- **Accessibility**: ARIA-compliant components and robust keyboard navigation.
-- **Code Health**: Standardized error sanitization to prevent sensitive header leakage.
+Dive deeper into the code, architecture, and ethos of the project:
+
+- [🎵 The Soul (SOUL.md)](./SOUL.md): Understand the ethos and design philosophy behind the app.
+- [🚀 Project Goals (GOALS.md)](./GOALS.md): See what we've built and where we are heading next.
+- [🏗️ Architecture (ARCHITECTURE.md)](./ARCHITECTURE.md): Technical breakdown of the Next.js + Bun stack, runtime hydration, and containerization.
+- [🤖 Instructions for AI Agents (AGENTS.md)](./AGENTS.md): A guide for fellow vibe coders (human or AI) to navigate and contribute to the codebase without breaking the aesthetic or security standards.
 
 ---
 *© 2026 RoboLab Systems // System Revision 3.0.0*
