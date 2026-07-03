@@ -22,3 +22,9 @@
 **Vulnerability:** The application was exposing `error.message` directly in API route handlers (`src/app/api/...`), which could inadvertently leak sensitive system paths, API keys, or stack details wrapped in third-party library error messages (such as `axios`).
 **Learning:** Returning `error.message` directly to the client from unhandled internal or external service exceptions violates safe error handling principles, as it can inadvertently disclose internals.
 **Prevention:** Always replace unhandled or external error messages with hardcoded, generic strings (e.g., `'Error fetching Spotify playlist'`) at the HTTP boundary before sending a response payload to the client.
+
+### Security Implementation Note: CSV Injection (Formula Injection)
+*   **Vulnerability Pattern**: CSV Injection occurs when untrusted user input begins with mathematical or command execution characters (`=`, `+`, `-`, `@`, `\t`, `\r`) and is exported into CSV formats parsed by spreadsheet applications like Excel.
+*   **Prevention Strategy**:
+    *   Prepend a single quote (`'`) to string values beginning with vulnerable trigger characters.
+    *   **Crucial Context**: When utilizing CSV parsers like `PapaParse`, it is vital to recursively sanitize *all* deeply nested properties and arrays within the data object structure *before* passing it to `Papa.unparse()`. Flat, one-level iteration is insufficient because the unparser logic might drill down or unwrap complex objects differently depending on configuration.

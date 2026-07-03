@@ -18,10 +18,15 @@ const sanitizeData = (data: any[]) => {
           sanitizedRow[key] = sanitizeValue(row[key]);
         }
       }
-      return sanitizedRow;
     }
-    return row;
-  });
+    return sanitizedObj;
+  }
+
+  return value;
+};
+
+const sanitizeData = (data: any[]) => {
+  return data.map(sanitizeValue);
 };
 
 const exportToCSV = (data: any[], filename: string) => {
