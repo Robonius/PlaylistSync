@@ -8,7 +8,15 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "RoboLab - Playlist Comparison Tool",
-  icons: { icon: "/icon.svg", shortcut: "/favicon.ico" },
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
   description: "Sync, backup, and transfer playlists across streaming platforms.",
 };
 
