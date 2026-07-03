@@ -1,23 +1,22 @@
 import Papa from 'papaparse';
 
-const sanitizeValue = (value: any): any => {
-  if (typeof value === 'string') {
-    // Sanitize CSV Injection vulnerabilities (Formula Injection)
-    if (/^[=+\-@\t\r]/.test(value)) {
-      return `'${value}`;
-    }
-    return value;
+const sanitizeValue = (value: any) => {
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) {
+    return `'${value}`;
   }
+  return value;
+};
 
-  if (Array.isArray(value)) {
-    return value.map(sanitizeValue);
-  }
-
-  if (typeof value === 'object' && value !== null) {
-    const sanitizedObj: any = {};
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        sanitizedObj[key] = sanitizeValue(value[key]);
+const sanitizeData = (data: any[]) => {
+  return data.map((row) => {
+    if (Array.isArray(row)) {
+      return row.map(sanitizeValue);
+    } else if (typeof row === 'object' && row !== null) {
+      const sanitizedRow: any = {};
+      for (const key in row) {
+        if (Object.prototype.hasOwnProperty.call(row, key)) {
+          sanitizedRow[key] = sanitizeValue(row[key]);
+        }
       }
     }
     return sanitizedObj;
@@ -44,4 +43,4 @@ const exportToCSV = (data: any[], filename: string) => {
   document.body.removeChild(link);
 };
 
-export { exportToCSV, sanitizeData, sanitizeValue };
+export { exportToCSV };
