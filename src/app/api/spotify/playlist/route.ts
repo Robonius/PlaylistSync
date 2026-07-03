@@ -6,6 +6,11 @@ export async function GET(request: NextRequest) {
   const playlistId = request.nextUrl.searchParams.get('playlistId');
   if (!playlistId) return NextResponse.json({ error: 'Missing playlistId' }, { status: 400 });
 
+  // Security: Validate playlistId format to prevent SSRF / Path Traversal
+  if (!/^[a-zA-Z0-9]+$/.test(playlistId)) {
+    return NextResponse.json({ error: 'Invalid playlistId format' }, { status: 400 });
+  }
+
   const { token, refreshed, newData } = await getSpotifyToken();
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

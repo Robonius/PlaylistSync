@@ -3,7 +3,8 @@ import Papa from 'papaparse';
 const sanitizeValue = (value: any): any => {
   if (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) {
     return `'${value}`;
-  } else if (Array.isArray(value)) {
+  }
+  if (Array.isArray(value)) {
     return value.map(sanitizeValue);
   } else if (typeof value === 'object' && value !== null) {
     const sanitizedObj: any = {};

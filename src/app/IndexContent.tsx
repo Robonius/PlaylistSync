@@ -66,7 +66,9 @@ export default function IndexContent() {
   const runtimeConfig = useRuntimeConfig();
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
+  const isLoading = isSyncing || isTransferring;
   const [viewMode, setViewMode] = useState<'comparison' | 'spotify' | 'youtube'>('comparison');
   const [authStatus, setAuthStatus] = useState({ spotify: false, youtube: false });
   const [spotifySongs, setSpotifySongs] = useState<any[]>([]);
@@ -116,7 +118,7 @@ export default function IndexContent() {
       return;
     }
 
-    setIsLoading(true);
+    setIsSyncing(true);
     try {
       let sSongs: any[] = [];
       if (spotifyUrl) {
@@ -154,7 +156,7 @@ export default function IndexContent() {
       // Standardized error logging to prevent header leakage
       console.error('Sync error:', error.message || 'Unknown error');
     } finally {
-      setIsLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -164,7 +166,7 @@ export default function IndexContent() {
       return;
     }
 
-    setIsLoading(true);
+    setIsTransferring(true);
     try {
       const playlistId = await createYouTubePlaylist('Synced from Spotify', 'Created by RoboLab');
 
@@ -183,7 +185,7 @@ export default function IndexContent() {
       }
       console.error('Transfer error:', error.message || 'Unknown error');
     } finally {
-      setIsLoading(false);
+      setIsTransferring(false);
     }
   };
 
@@ -278,8 +280,11 @@ export default function IndexContent() {
                     disabled={isLoading}
                     onClick={handleSync}
                   >
-                    {isLoading ? (
-                      <RefreshCcw className="h-4 w-4 animate-spin" />
+                    {isSyncing ? (
+                      <>
+                        <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
+                        Executing Sync...
+                      </>
                     ) : (
                       <>
                         <RefreshCcw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
@@ -304,8 +309,17 @@ export default function IndexContent() {
                   onClick={handleTransferToYouTube}
                   disabled={isLoading || comparisonResults.spotifyUnique.length === 0}
                 >
-                  <ArrowRightLeft className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-x-1 transition-transform" />
-                  Transfer Unique to YouTube
+                  {isTransferring ? (
+                    <>
+                      <RefreshCcw className="h-3.5 w-3.5 mr-2 text-primary animate-spin" />
+                      Transferring...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRightLeft className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-x-1 transition-transform" />
+                      Transfer Unique to YouTube
+                    </>
+                  )}
                 </Button>
                 <Button
                   variant="outline"
