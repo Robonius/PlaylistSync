@@ -3,7 +3,7 @@
 # Configuration
 IMAGE_NAME="ghcr.io/robonius/playlistsync:latest"
 CONTAINER_NAME="playlistsync-test"
-PORT=8080
+PORT=3000
 
 echo "🚀 Starting Remote Image Test Workflow..."
 

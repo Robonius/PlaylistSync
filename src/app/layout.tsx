@@ -32,7 +32,8 @@ export default function RootLayout({
   const runtimeConfig: RuntimeConfig = {
     SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID || "",
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
-    REDIRECT_URI: process.env.REDIRECT_URI || "",
+    SPOTIFY_REDIRECT_URI: process.env.SPOTIFY_REDIRECT_URI || "http://127.0.0.1:3000/api/auth/callback/spotify",
+    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/auth/callback/google",
   };
 
   return (
