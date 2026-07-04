@@ -1,10 +1,9 @@
 # 🚀 Project Goals
 
 ## Core Objective
-To create a seamless application that empowers users to sync, backup, and transfer their music playlists across different streaming platforms (Spotify, YouTube Music) and local formats (CSV), bypassing the need for expensive third-party subscription services.
+To create a seamless, client-side application that empowers users to sync, backup, and transfer their music playlists across different streaming platforms (Spotify, YouTube Music) and local formats (CSV), bypassing the need for expensive third-party subscription services.
 
 ## Short-Term Goals (The Now)
-- [x] Secure Backend Proxy Architecture for OAuth 2.0 PKCE and automated token refreshing.
 - [x] Read playlists from Spotify and YouTube Music APIs.
 - [x] Handle pagination to support massive playlists.
 - [x] Diff playlists to find missing tracks.
