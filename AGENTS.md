@@ -34,6 +34,10 @@ Welcome, fellow agent. If you are reading this, you are tasked with expanding or
 - **Notifications:** Use the toast notification system (`src/utils/toast.ts`) instead of native browser `alert()`.
 
 ## Security & Logging Standards
+- **OAuth:** Access and refresh tokens MUST be stored in `HttpOnly`, `SameSite=Strict`, `Secure` cookies, and NEVER in `localStorage`.
+- **Proxying:** All frontend requests to Spotify/YouTube APIs must route through Next.js Route Handlers (e.g., `/api/spotify/*`) to protect tokens.
+- **Secrets:** Backend secrets (`CLIENT_SECRET`s) must use standard names (no prefixes) and be fetched via the `getEnv` utility.
+- **CSRF:** Enforce the generation and validation of a cryptographically secure `state` parameter during OAuth redirect lifecycles.
 - **Masking:** Always use `type="password"` for fields handling secrets, tokens, or API keys.
 - **Sanitization:**
     - Never log raw error objects or `error.message` from network requests directly to the console.

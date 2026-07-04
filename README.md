@@ -2,7 +2,7 @@
 
 Welcome to the vibe.
 
-A high-precision, client-side React application for synchronizing and comparing playlists across Spotify and YouTube Music. Designed for vibe coders, music lovers, and power users who demand full control over their musical metadata.
+A high-precision React application for synchronizing and comparing playlists across Spotify and YouTube Music. Designed for vibe coders, music lovers, and power users who demand full control over their musical metadata.
 
 Music shouldn't be trapped in walled gardens. Keep your playlists in sync, back them up to CSV, and let your data flow freely.
 
@@ -32,13 +32,13 @@ Music shouldn't be trapped in walled gardens. Keep your playlists in sync, back 
 >
 > Accessing the application via a local IP address (e.g., `http://192.168.x.x`) over HTTP will cause the connection buttons to fail with a security error.
 
-This application uses **OAuth 2.0 with PKCE** for secure, client-side authentication.
+This application uses **OAuth 2.0 with PKCE** for secure authentication utilizing a **backend proxy architecture**.
 
 ### 1. Spotify Setup
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 2. Create a new App.
 3. In the App settings, add your **Redirect URI** (e.g., `http://localhost:3000`).
-4. Copy the **Client ID** and add it to your `.env` as `SPOTIFY_CLIENT_ID`.
+4. Copy the **Client ID** and **Client Secret** and add them to your `.env` as `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET`.
 
 ### 2. Google / YouTube Setup
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
@@ -48,7 +48,10 @@ This application uses **OAuth 2.0 with PKCE** for secure, client-side authentica
 5. Go to **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**.
 6. Select **Web application**.
 7. Add your **Authorized redirect URIs** (e.g., `http://localhost:3000`).
-8. Copy the **Client ID** and add it to your `.env` as `GOOGLE_CLIENT_ID`.
+8. Copy the **Client ID** and **Client Secret** and add them to your `.env` as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+
+### 3. Token Management
+Next.js Route Handlers (e.g., `/api/auth/callback/*`) manage token exchange and store access/refresh tokens in secure HTTP-only cookies. All frontend requests to Spotify and YouTube must go through backend proxies to protect these tokens.
 
 ## 🛠 Features
 
@@ -70,7 +73,9 @@ docker-compose up prod
 ### Environment Variables (Runtime)
 The Docker image supports runtime environment injection via standard environment variables:
 - `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
 - `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
 - `REDIRECT_URI`
 
 ## 📚 Documentation & The Vibe
