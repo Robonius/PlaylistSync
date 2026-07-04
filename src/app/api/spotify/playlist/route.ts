@@ -38,6 +38,12 @@ export async function GET(request: NextRequest) {
     }
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error fetching Spotify playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error fetching Spotify playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('spotify_access_token');
+      response.cookies.delete('spotify_refresh_token');
+    }
+    return response;
   }
 }

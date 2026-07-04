@@ -39,7 +39,13 @@ export async function GET(request: NextRequest) {
     }
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('google_access_token');
+      response.cookies.delete('google_refresh_token');
+    }
+    return response;
   }
 }
 
@@ -64,6 +70,12 @@ export async function POST(request: NextRequest) {
     }
     return nextResponse;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error creating YouTube playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error creating YouTube playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('google_access_token');
+      response.cookies.delete('google_refresh_token');
+    }
+    return response;
   }
 }
