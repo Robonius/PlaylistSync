@@ -22,6 +22,12 @@ export async function POST(request: NextRequest) {
     }
     return nextResponse;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error adding items to YouTube playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error adding items to YouTube playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('google_access_token');
+      response.cookies.delete('google_refresh_token');
+    }
+    return response;
   }
 }
