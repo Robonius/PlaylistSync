@@ -1,0 +1,1 @@
+The code duplication issue in `src/utils/csvExport.ts` has already been resolved in a previous commit (c48029f). The `sanitizeValue` helper function was introduced to handle the string sanitization recursively for both arrays and objects, eliminating the duplicated logic.
