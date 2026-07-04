@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
     if (data.access_token) {
       const response = NextResponse.redirect(new URL('/', request.url));
 
+
+      const expiresAt = Date.now() + (data.expires_in * 1000);
       response.cookies.set('spotify_access_token', data.access_token, {
         httpOnly: true,
         secure: true,
@@ -37,6 +39,14 @@ export async function GET(request: NextRequest) {
         maxAge: data.expires_in,
         path: '/',
       });
+      response.cookies.set('spotify_expires_at', expiresAt.toString(), {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: data.expires_in,
+        path: '/',
+      });
+
 
       if (data.refresh_token) {
         response.cookies.set('spotify_refresh_token', data.refresh_token, {
