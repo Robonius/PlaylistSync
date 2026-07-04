@@ -1,0 +1,44 @@
+### 1. Read & Analyze
+I have read and analyzed the contents of `README.md`, `GOALS.md`, `AGENTS.md`, and `SOUL.md`.
+
+### 2. Summarize State
+**Core Directives:**
+The primary objective is to empower users to seamlessly sync, backup, and transfer playlists across Spotify and YouTube Music, as well as via CSV. The application must support pagination, diffing, and recursive migrations to write missing tracks to platforms.
+
+**Tech Stack:**
+*   **Runtime & Package Manager:** Bun
+*   **Framework:** Next.js 15 (App Router)
+*   **Language:** TypeScript
+*   **Styling:** Tailwind CSS, shadcn/ui, Radix UI, lucide-react
+*   **Deployment:** Docker / Docker Compose (Standalone mode) with GitHub Actions for CI/CD
+*   **Auth:** OAuth 2.0 with PKCE, Web Crypto API (requires Secure Contexts)
+
+**Project Philosophy (SOUL):**
+*   **Ethos:** Data should flow freely without walled gardens.
+*   **Vibe:** Built for "vibe coders" leveraging AI. Moody, dark-mode default UI. Containerized to ensure "build once, run anywhere".
+
+### 3. Zero Assumptions
+*   **State Management:** Currently undefined/transitional. The documents state "React hook state for now", but note that `@tanstack/react-query` is installed.
+*   **Authentication Architecture:** There is a contradiction. `README.md` claims "client-side authentication" but also mentions "Tokens are stored securely via HTTP-only cookies." The exact backend proxy flow is undefined in the text.
+*   **Secret Management:** `README.md` only lists `CLIENT_ID`s. Handling of Client Secrets (which are required for the Authorization Code flow) is undefined in the markdown files.
+*   **Session State:** The mechanism for CSRF protection during OAuth flows (e.g., using `state`) is mentioned as "PKCE states" but lacks technical constraints.
+
+### 4. Propose Updates
+Based on the fact that we have implemented OAuth for Spotify and YouTube using a backend proxy architecture, here are the proposed updates:
+
+**README.md**
+*   Update the Authentication section to remove "client-side authentication" and explicitly describe the **Authorization Code Flow with PKCE** utilizing a **backend proxy architecture**.
+*   Update the "Environment Variables" section to include `ROBOLAB_SPOTIFY_CLIENT_SECRET` and `ROBOLAB_GOOGLE_CLIENT_SECRET`.
+*   Explain that Next.js Route Handlers (`/api/auth/callback/*`) manage token exchange and HTTP-only cookies, and that API requests must go through backend proxies.
+
+**GOALS.md**
+*   Add a completed short-term goal for establishing the "Secure Backend Proxy Architecture for OAuth 2.0 PKCE and automated token refreshing."
+
+**AGENTS.md**
+*   **Security Standard - OAuth:** Add explicit instructions that access and refresh tokens MUST be stored in `HttpOnly`, `SameSite=Strict`, `Secure` cookies, and NEVER in `localStorage`.
+*   **Security Standard - Proxying:** Mandate that all frontend requests to Spotify/YouTube APIs must route through Next.js Route Handlers (e.g., `/api/spotify/*`) to protect tokens.
+*   **Security Standard - Secrets:** Explicitly require backend secrets (`CLIENT_SECRET`s) to be prefixed with `ROBOLAB_` and fetched via the `getEnv` utility.
+*   **Security Standard - CSRF:** Enforce the generation and validation of a cryptographically secure `state` parameter during OAuth redirect lifecycles.
+
+**SOUL.md**
+*   Add a point regarding "Uncompromising Security" to the Vibe: While playlist data is meant to flow freely, the keys to that data (tokens) are locked down securely via our backend proxy architecture, keeping the user's experience smooth and secure.
