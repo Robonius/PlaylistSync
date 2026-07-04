@@ -150,6 +150,7 @@ export default function IndexContent() {
     } catch (error: any) {
       if (error.status === 401) {
         showError('Unauthorized: Please connect your account first');
+        checkAuthStatus().then(setAuthStatus);
       } else {
           showError('Sync failed. Please check the logs.');
       }
@@ -180,6 +181,7 @@ export default function IndexContent() {
     } catch (error: any) {
       if (error.status === 401) {
         showError('Unauthorized: Please connect your account first');
+        checkAuthStatus().then(setAuthStatus);
       } else {
           showError('Transfer failed. Please check the logs.');
       }

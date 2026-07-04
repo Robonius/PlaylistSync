@@ -44,3 +44,8 @@
 ## 2025-02-27 - [Configuration] Handling differing Redirect URIs
 **Issue:** Spotify required `127.0.0.1` while Google required `localhost` for redirect URIs during OAuth flows. A single dynamic `REDIRECT_URI` led to mismatch errors based on how the user loaded the web page.
 **Prevention:** Split the single `REDIRECT_URI` into `SPOTIFY_REDIRECT_URI` and `GOOGLE_REDIRECT_URI` and pass these explicit URLs directly in the OAuth request rather than relying on `window.location.origin` or the request url.
+
+## 2025-02-27 - [Security] Prevent Ghost Sessions and Inconsistent UI State (OAuth 401s)
+**Vulnerability:** The application was catching 401 Unauthorized errors from Spotify and YouTube APIs (e.g., when a user revokes access from their provider settings) but failing to clear the local HttpOnly session cookies. This left the user in a "pseudo-connected" state, where the frontend UI indicated they were connected but API requests consistently failed.
+**Learning:** Returning generic error messages to the client on 401s without managing local session state leads to broken UX and potential edge cases where invalid tokens persist indefinitely.
+**Prevention:** Always intercept 401 status codes in backend API routes. When a 401 occurs, explicitly clear the associated access and refresh tokens (e.g., using `response.cookies.delete(...)`). Additionally, update the frontend error handling to re-fetch and apply the current authentication status when a 401 is encountered, immediately prompting the user to re-authenticate.

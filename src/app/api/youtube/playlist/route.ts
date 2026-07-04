@@ -11,8 +11,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid playlistId format' }, { status: 400 });
   }
 
-  const { token, refreshed, newData } = await getGoogleToken();
+
+  const { token, refreshed, newData, clearCookies } = await getGoogleToken();
+
+  if (clearCookies) {
+    const response = NextResponse.json({ error: 'Session expired' }, { status: 401 });
+    response.cookies.delete('google_access_token');
+    response.cookies.delete('google_refresh_token');
+    response.cookies.delete('google_expires_at');
+    return response;
+  }
+
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
 
   try {
     let allItems: any[] = [];
@@ -32,21 +43,48 @@ export async function GET(request: NextRequest) {
       platformId: item.contentDetails?.videoId || '',
     }));
     const response = NextResponse.json(tracks);
+
     if (refreshed && newData) {
+      const expiresAt = Date.now() + (newData.expires_in * 1000);
       response.cookies.set('google_access_token', newData.access_token, {
         httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
       });
+      response.cookies.set('google_expires_at', expiresAt.toString(), {
+        httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
+      });
+      if (newData.refresh_token) {
+        response.cookies.set('google_refresh_token', newData.refresh_token, {
+          httpOnly: true, secure: true, sameSite: 'strict', maxAge: 10 * 365 * 24 * 60 * 60, path: '/',
+        });
+      }
     }
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('google_access_token');
+      response.cookies.delete('google_refresh_token');
+    }
+    return response;
   }
 }
 
 export async function POST(request: NextRequest) {
   const { title, description } = await request.json();
-  const { token, refreshed, newData } = await getGoogleToken();
+
+  const { token, refreshed, newData, clearCookies } = await getGoogleToken();
+
+  if (clearCookies) {
+    const response = NextResponse.json({ error: 'Session expired' }, { status: 401 });
+    response.cookies.delete('google_access_token');
+    response.cookies.delete('google_refresh_token');
+    response.cookies.delete('google_expires_at');
+    return response;
+  }
+
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
 
   try {
     const response = await axios.post(`https://www.googleapis.com/youtube/v3/playlists`, {
@@ -57,13 +95,29 @@ export async function POST(request: NextRequest) {
       headers: { Authorization: `Bearer ${token}` },
     });
     const nextResponse = NextResponse.json({ playlistId: response.data.id });
+
     if (refreshed && newData) {
-      nextResponse.cookies.set('google_access_token', newData.access_token, {
+      const expiresAt = Date.now() + (newData.expires_in * 1000);
+      response.cookies.set('google_access_token', newData.access_token, {
         httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
       });
+      response.cookies.set('google_expires_at', expiresAt.toString(), {
+        httpOnly: true, secure: true, sameSite: 'strict', maxAge: newData.expires_in, path: '/',
+      });
+      if (newData.refresh_token) {
+        response.cookies.set('google_refresh_token', newData.refresh_token, {
+          httpOnly: true, secure: true, sameSite: 'strict', maxAge: 10 * 365 * 24 * 60 * 60, path: '/',
+        });
+      }
     }
     return nextResponse;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error creating YouTube playlist' }, { status: error.response?.status || 500 });
+    const status = error.response?.status || 500;
+    const response = NextResponse.json({ error: 'Error creating YouTube playlist' }, { status });
+    if (status === 401) {
+      response.cookies.delete('google_access_token');
+      response.cookies.delete('google_refresh_token');
+    }
+    return response;
   }
 }
