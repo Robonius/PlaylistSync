@@ -98,7 +98,7 @@ export default function IndexContent() {
 
   const handleSpotifyAuth = async () => {
     try {
-      await initiateSpotifyAuth(runtimeConfig.SPOTIFY_CLIENT_ID, window.location.origin + '/api/auth/callback/spotify');
+      await initiateSpotifyAuth(runtimeConfig.SPOTIFY_CLIENT_ID, runtimeConfig.SPOTIFY_REDIRECT_URI);
     } catch (error: any) {
       showError('Spotify connection failed');
     }
@@ -106,7 +106,7 @@ export default function IndexContent() {
 
   const handleGoogleAuth = async () => {
     try {
-      await initiateGoogleAuth(runtimeConfig.GOOGLE_CLIENT_ID, window.location.origin + '/api/auth/callback/google');
+      await initiateGoogleAuth(runtimeConfig.GOOGLE_CLIENT_ID, runtimeConfig.GOOGLE_REDIRECT_URI);
     } catch (error: any) {
       showError('YouTube connection failed');
     }

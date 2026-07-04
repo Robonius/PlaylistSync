@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   try {
     const clientId = getEnv('GOOGLE_CLIENT_ID');
     const clientSecret = getEnv('GOOGLE_CLIENT_SECRET');
-    const redirectUri = new URL('/api/auth/callback/google', request.url).toString();
+    const redirectUri = getEnv('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/auth/callback/google');
 
     const data = await exchangeGoogleCodeForToken(clientId, clientSecret, code, redirectUri, codeVerifier);
 

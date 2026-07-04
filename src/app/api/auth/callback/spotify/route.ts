@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   try {
     const clientId = getEnv('SPOTIFY_CLIENT_ID');
     const clientSecret = getEnv('SPOTIFY_CLIENT_SECRET');
-    const redirectUri = new URL('/api/auth/callback/spotify', request.url).toString();
+    const redirectUri = getEnv('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:3000/api/auth/callback/spotify');
 
     const data = await exchangeSpotifyCodeForToken(clientId, clientSecret, code, redirectUri, codeVerifier);
 

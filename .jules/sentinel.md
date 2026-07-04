@@ -33,3 +33,14 @@
 **Vulnerability:** The application was interpolating unvalidated user input (`playlistId` from query parameters) directly into backend API URLs (e.g., `https://api.spotify.com/v1/playlists/${playlistId}/tracks`).
 **Learning:** If user input is not strictly validated, attackers can supply path traversal payloads (like `../me`) that manipulate the final URL constructed by the server. This causes the backend to make authorized requests (using the victim's OAuth token) to unintended endpoints (Server-Side Request Forgery). Trusting that the frontend only sends valid IDs is insufficient.
 **Prevention:** Always implement strict server-side validation on route parameters or query parameters before using them to construct backend URLs. Use allowlists or tight regex patterns (e.g., `/^[a-zA-Z0-9]+$/` for Spotify Base62 IDs) to ensure the parameter contains only expected characters and no path traversal sequences.
+## 2025-02-27 - [Test] Verify OAuth flow with Playwright
+**Goal:** Verify OAuth authentication flows locally using playwright.
+**Learning:** We can simulate clicks on the UI and check if the page correctly redirects to `accounts.spotify.com` and `accounts.google.com` using the credentials in the `.env` file.
+**Prevention:** If testing remotely, use a tool like Playwright.
+## 2025-02-27 - [Configuration] Handling differing Redirect URIs
+**Issue:** Spotify required  while Google required  for redirect URIs during OAuth flows. A single dynamic  led to mismatch errors based on how the user loaded the web page.
+**Prevention:** Split the single  into  and  and pass these explicit URLs directly in the OAuth request rather than relying on  or the request url.
+
+## 2025-02-27 - [Configuration] Handling differing Redirect URIs
+**Issue:** Spotify required `127.0.0.1` while Google required `localhost` for redirect URIs during OAuth flows. A single dynamic `REDIRECT_URI` led to mismatch errors based on how the user loaded the web page.
+**Prevention:** Split the single `REDIRECT_URI` into `SPOTIFY_REDIRECT_URI` and `GOOGLE_REDIRECT_URI` and pass these explicit URLs directly in the OAuth request rather than relying on `window.location.origin` or the request url.
