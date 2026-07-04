@@ -100,7 +100,7 @@ export default function IndexContent() {
     try {
       await initiateSpotifyAuth(runtimeConfig.SPOTIFY_CLIENT_ID, window.location.origin + '/api/auth/callback/spotify');
     } catch (error: any) {
-      showError(error.message || 'Spotify connection failed');
+      showError('Spotify connection failed');
     }
   };
 
@@ -108,7 +108,7 @@ export default function IndexContent() {
     try {
       await initiateGoogleAuth(runtimeConfig.GOOGLE_CLIENT_ID, window.location.origin + '/api/auth/callback/google');
     } catch (error: any) {
-      showError(error.message || 'YouTube connection failed');
+      showError('YouTube connection failed');
     }
   };
 
@@ -151,10 +151,10 @@ export default function IndexContent() {
       if (error.status === 401) {
         showError('Unauthorized: Please connect your account first');
       } else {
-        showError('Sync failed: ' + (error.message || 'Unknown error'));
+          showError('Sync failed. Please check the logs.');
       }
-      // Standardized error logging to prevent header leakage
-      console.error('Sync error:', error.message || 'Unknown error');
+        // Standardized error logging to prevent header leakage
+        console.error('Sync error:', error.message || 'Unknown error');
     } finally {
       setIsSyncing(false);
     }
@@ -181,9 +181,10 @@ export default function IndexContent() {
       if (error.status === 401) {
         showError('Unauthorized: Please connect your account first');
       } else {
-        showError('Transfer failed: ' + (error.message || 'Unknown error'));
+          showError('Transfer failed. Please check the logs.');
       }
-      console.error('Transfer error:', error.message || 'Unknown error');
+        // Standardized error logging to prevent header leakage
+        console.error('Transfer error:', error.message || 'Unknown error');
     } finally {
       setIsTransferring(false);
     }
