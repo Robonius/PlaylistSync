@@ -112,7 +112,7 @@ export const exchangeSpotifyCodeForToken = async (clientId: string, clientSecret
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic ' + authHeader
     },
-    body: params,
+    body: params.toString(),
   });
 
   return response.json();
@@ -133,7 +133,7 @@ export const exchangeGoogleCodeForToken = async (clientId: string, clientSecret:
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: params,
+    body: params.toString(),
   });
 
   return response.json();
@@ -153,7 +153,7 @@ export const refreshSpotifyToken = async (clientId: string, clientSecret: string
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic ' + authHeader
     },
-    body: params,
+    body: params.toString(),
   });
 
   return response.json();
@@ -172,7 +172,7 @@ export const refreshGoogleToken = async (clientId: string, clientSecret: string,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: params,
+    body: params.toString(),
   });
 
   return response.json();

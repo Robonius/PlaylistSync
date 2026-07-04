@@ -49,3 +49,10 @@
 **Vulnerability:** The application was catching 401 Unauthorized errors from Spotify and YouTube APIs (e.g., when a user revokes access from their provider settings) but failing to clear the local HttpOnly session cookies. This left the user in a "pseudo-connected" state, where the frontend UI indicated they were connected but API requests consistently failed.
 **Learning:** Returning generic error messages to the client on 401s without managing local session state leads to broken UX and potential edge cases where invalid tokens persist indefinitely.
 **Prevention:** Always intercept 401 status codes in backend API routes. When a 401 occurs, explicitly clear the associated access and refresh tokens (e.g., using `response.cookies.delete(...)`). Additionally, update the frontend error handling to re-fetch and apply the current authentication status when a 401 is encountered, immediately prompting the user to re-authenticate.
+
+### API Strict Token Payload Rules (Spotify & Google)
+When interacting with OAuth token endpoints for Spotify and Google, strict payload formatting must be adhered to prevent HTTP 400 Bad Request errors:
+1. **Content-Type**: Both endpoints strictly require `Content-Type: application/x-www-form-urlencoded`.
+2. **Payload Serialization**: The body payload MUST be serialized using `URLSearchParams.toString()` (or native URL encoding). Passing raw JSON or a `URLSearchParams` object directly to `fetch` can cause stringification issues or truncate special characters (like those found in Google refresh tokens).
+3. **Spotify Auth Header**: Spotify requires the client credentials to be passed in the `Authorization` header as a Base64-encoded string: `Basic base64(client_id:client_secret)`.
+4. **Google Body Auth**: Google does NOT use the Basic Auth header. Instead, `client_id` and `client_secret` must be included directly within the URL-encoded body parameters.
