@@ -1,16 +1,17 @@
 import Papa from 'papaparse';
 
-const sanitizeValue = (value: any): any => {
+const sanitizeValue = (value: unknown): unknown => {
   if (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) {
     return `'${value}`;
   }
   if (Array.isArray(value)) {
     return value.map(sanitizeValue);
   } else if (typeof value === 'object' && value !== null) {
-    const sanitizedObj: any = {};
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        sanitizedObj[key] = sanitizeValue(value[key]);
+    const sanitizedObj: Record<string, unknown> = {};
+    const objValue = value as Record<string, unknown>;
+    for (const key in objValue) {
+      if (Object.prototype.hasOwnProperty.call(objValue, key)) {
+        sanitizedObj[key] = sanitizeValue(objValue[key]);
       }
     }
     return sanitizedObj;
@@ -18,13 +19,13 @@ const sanitizeValue = (value: any): any => {
   return value;
 };
 
-const sanitizeData = (data: any[]) => {
-  return data.map(sanitizeValue);
+const sanitizeData = <T extends Record<string, unknown>>(data: T[]): Record<string, unknown>[] => {
+  return data.map((item) => sanitizeValue(item) as Record<string, unknown>);
 };
 
-const exportToCSV = (data: any[], filename: string) => {
+const exportToCSV = <T extends Record<string, unknown>>(data: T[], filename: string): void => {
   const sanitizedData = sanitizeData(data);
-  const csv = Papa.unparse(sanitizedData);
+  const csv = Papa.unparse(sanitizedData as unknown as unknown[]);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
