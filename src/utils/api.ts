@@ -1,7 +1,8 @@
+import { Song } from './playlistComparison';
 import axios from 'axios';
 import { sanitizeError } from './sanitizeError';
 
-export const getSpotifyPlaylist = async (playlistId: string) => {
+export const getSpotifyPlaylist = async (playlistId: string): Promise<Song[]> => {
   try {
     const response = await axios.get('/api/spotify/playlist', {
       params: { playlistId }
@@ -13,7 +14,7 @@ export const getSpotifyPlaylist = async (playlistId: string) => {
   }
 };
 
-export const getYouTubePlaylist = async (playlistId: string) => {
+export const getYouTubePlaylist = async (playlistId: string): Promise<Song[]> => {
   try {
     const response = await axios.get('/api/youtube/playlist', {
       params: { playlistId }
