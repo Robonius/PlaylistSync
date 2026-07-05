@@ -433,9 +433,11 @@ export default function IndexContent() {
                                   </TableCell>
                                 </TableRow>
                               ) : (
-                                spotifySongs.map((song, i) => {
-                                  const isUnique = comparisonResults.spotifyUnique.some(s => s.platformId === song.platformId);
-                                  return (
+                                (() => {
+                                  const spotifyUniqueIds = new Set(comparisonResults.spotifyUnique.map(s => s.platformId));
+                                  return spotifySongs.map((song, i) => {
+                                    const isUnique = spotifyUniqueIds.has(song.platformId);
+                                    return (
                                     <TableRow key={i} className="group border-b last:border-0">
                                       <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
                                       <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
@@ -448,7 +450,8 @@ export default function IndexContent() {
                                       </TableCell>
                                     </TableRow>
                                   );
-                                })
+                                });
+                                })()
                               )}
                             </TableBody>
                           </Table>
@@ -487,9 +490,11 @@ export default function IndexContent() {
                                   </TableCell>
                                 </TableRow>
                               ) : (
-                                youtubeSongs.map((song, i) => {
-                                  const isUnique = comparisonResults.youtubeUnique.some(s => s.platformId === song.platformId);
-                                  return (
+                                (() => {
+                                  const youtubeUniqueIds = new Set(comparisonResults.youtubeUnique.map(s => s.platformId));
+                                  return youtubeSongs.map((song, i) => {
+                                    const isUnique = youtubeUniqueIds.has(song.platformId);
+                                    return (
                                     <TableRow key={i} className="group border-b last:border-0">
                                       <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
                                       <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
@@ -502,7 +507,8 @@ export default function IndexContent() {
                                       </TableCell>
                                     </TableRow>
                                   );
-                                })
+                                });
+                                })()
                               )}
                             </TableBody>
                           </Table>
