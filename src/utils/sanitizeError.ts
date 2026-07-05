@@ -1,8 +1,19 @@
 import axios from 'axios';
 
-export const sanitizeError = (error: unknown) => {
+type SanitizedAxiosError = Error & {
+  isAxiosError: boolean;
+  response?: {
+    status: number;
+    data: unknown;
+  };
+  status?: number;
+  data?: unknown;
+  request?: boolean;
+};
+
+export const sanitizeError = (error: unknown): unknown | SanitizedAxiosError => {
   if (axios.isAxiosError(error)) {
-    const sanitizedError: any = new Error(error.message);
+    const sanitizedError = new Error(error.message) as SanitizedAxiosError;
     sanitizedError.isAxiosError = true;
 
     // Explicitly copy only safe properties

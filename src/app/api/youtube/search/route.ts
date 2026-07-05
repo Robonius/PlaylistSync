@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
       }
     }
     return nextResponse;
-  } catch (error: any) {
-    const status = error.response?.status || 500;
+  } catch (error: unknown) {
+    const status = axios.isAxiosError(error) ? error.response?.status || 500 : 500;
     const response = NextResponse.json({ error: 'Error searching YouTube track' }, { status });
     if (status === 401) {
       response.cookies.delete('google_access_token');
