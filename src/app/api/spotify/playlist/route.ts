@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   if (!playlistId) return NextResponse.json({ error: 'Missing playlistId' }, { status: 400 });
 
   // Security: Validate playlistId format to prevent SSRF / Path Traversal
-  if (!/^[a-zA-Z0-9]+$/.test(playlistId)) {
+  if (!/^[a-zA-Z0-9]{22}$/.test(playlistId)) {
     return NextResponse.json({ error: 'Invalid playlistId format' }, { status: 400 });
   }
 
