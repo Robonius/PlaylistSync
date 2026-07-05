@@ -29,6 +29,12 @@ export async function GET(request: NextRequest) {
     let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
     let allItems: any[] = [];
     while (url) {
+      // Security: Prevent SSRF and Token Leakage by validating pagination URL
+      if (!url.startsWith('https://api.spotify.com/')) {
+        console.error('Security Warning: Invalid pagination URL received from Spotify API:', url);
+        break;
+      }
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
