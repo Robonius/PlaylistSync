@@ -11,7 +11,7 @@ import {
   addItemsToYouTubePlaylist,
   checkAuthStatus
 } from '@/utils/api';
-import { comparePlaylists, ComparisonResult } from '@/utils/playlistComparison';
+import { comparePlaylists, ComparisonResult, Song } from '@/utils/playlistComparison';
 import { exportToCSV } from '@/utils/csvExport';
 import { importFromCSV } from '@/utils/csvImport';
 import InputField from '@/components/InputField';
@@ -72,8 +72,8 @@ export default function IndexContent() {
   const isLoading = isSyncing || isTransferring;
   const [viewMode, setViewMode] = useState<'comparison' | 'spotify' | 'youtube'>('comparison');
   const [authStatus, setAuthStatus] = useState({ spotify: false, youtube: false });
-  const [spotifySongs, setSpotifySongs] = useState<any[]>([]);
-  const [youtubeSongs, setYoutubeSongs] = useState<any[]>([]);
+  const [spotifySongs, setSpotifySongs] = useState<Song[]>([]);
+  const [youtubeSongs, setYoutubeSongs] = useState<Song[]>([]);
   const [comparisonResults, setComparisonResults] = useState<ComparisonResult>({
     common: [],
     spotifyUnique: [],
@@ -100,7 +100,7 @@ export default function IndexContent() {
   const handleSpotifyAuth = async () => {
     try {
       await initiateSpotifyAuth(runtimeConfig.SPOTIFY_CLIENT_ID, runtimeConfig.SPOTIFY_REDIRECT_URI);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showError('Spotify connection failed');
     }
   };
@@ -108,7 +108,7 @@ export default function IndexContent() {
   const handleGoogleAuth = async () => {
     try {
       await initiateGoogleAuth(runtimeConfig.GOOGLE_CLIENT_ID, runtimeConfig.GOOGLE_REDIRECT_URI);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showError('YouTube connection failed');
     }
   };
@@ -121,7 +121,7 @@ export default function IndexContent() {
 
     setIsSyncing(true);
     try {
-      let sSongs: any[] = [];
+      let sSongs: Song[] = [];
       if (spotifyUrl) {
         const playlistId = spotifyUrl.split('/').pop()?.split('?')[0];
         if (playlistId) {
@@ -132,7 +132,7 @@ export default function IndexContent() {
         setSpotifySongs([]);
       }
 
-      let ySongs: any[] = [];
+      let ySongs: Song[] = [];
       if (youtubeUrl) {
         // Handle both full URLs and potential list IDs
         let playlistId = youtubeUrl;
@@ -148,8 +148,8 @@ export default function IndexContent() {
       const results = comparePlaylists(sSongs, ySongs);
       setComparisonResults(results);
       showSuccess('Sync complete!');
-    } catch (error: any) {
-      if (error.status === 401) {
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'status' in error && (error as Record<string, unknown>).status === 401) {
         showError('Unauthorized: Please connect your account first');
         checkAuthStatus().then(setAuthStatus);
       } else {
@@ -179,8 +179,8 @@ export default function IndexContent() {
         }
       }
       showSuccess('Transfer to YouTube complete!');
-    } catch (error: any) {
-      if (error.status === 401) {
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'status' in error && (error as Record<string, unknown>).status === 401) {
         showError('Unauthorized: Please connect your account first');
         checkAuthStatus().then(setAuthStatus);
       } else {
