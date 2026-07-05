@@ -58,6 +58,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { initiateSpotifyAuth, initiateGoogleAuth } from '@/utils/oauth';
 import { useRuntimeConfig } from '@/components/runtime-config-provider';
 
@@ -306,33 +307,58 @@ export default function IndexContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full rounded-none justify-start h-10 text-[10px] uppercase font-bold group"
-                  onClick={handleTransferToYouTube}
-                  disabled={isLoading || comparisonResults.spotifyUnique.length === 0}
-                >
-                  {isTransferring ? (
-                    <>
-                      <RefreshCcw className="h-3.5 w-3.5 mr-2 text-primary animate-spin" />
-                      Transferring...
-                    </>
-                  ) : (
-                    <>
-                      <ArrowRightLeft className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-x-1 transition-transform" />
-                      Transfer Unique to YouTube
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full rounded-none justify-start h-10 text-[10px] uppercase font-bold group"
-                  onClick={handleExportCSV}
-                  disabled={isLoading || (spotifySongs.length === 0 && youtubeSongs.length === 0)}
-                >
-                  <Download className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-y-0.5 transition-transform" />
-                  Export Comprehensive CSV
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      tabIndex={isLoading || comparisonResults.spotifyUnique.length === 0 ? 0 : -1}
+                      className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-none"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full rounded-none justify-start h-10 text-[10px] uppercase font-bold group"
+                        onClick={handleTransferToYouTube}
+                        disabled={isLoading || comparisonResults.spotifyUnique.length === 0}
+                      >
+                        {isTransferring ? (
+                          <>
+                            <RefreshCcw className="h-3.5 w-3.5 mr-2 text-primary animate-spin" />
+                            Transferring...
+                          </>
+                        ) : (
+                          <>
+                            <ArrowRightLeft className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-x-1 transition-transform" />
+                            Transfer Unique to YouTube
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isLoading ? "Action in progress..." : comparisonResults.spotifyUnique.length === 0 ? "Sync playlists first to find unique tracks" : "Transfer unique tracks to YouTube"}
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      tabIndex={isLoading || (spotifySongs.length === 0 && youtubeSongs.length === 0) ? 0 : -1}
+                      className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-none"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full rounded-none justify-start h-10 text-[10px] uppercase font-bold group"
+                        onClick={handleExportCSV}
+                        disabled={isLoading || (spotifySongs.length === 0 && youtubeSongs.length === 0)}
+                      >
+                        <Download className="h-3.5 w-3.5 mr-2 text-primary group-hover:translate-y-0.5 transition-transform" />
+                        Export Comprehensive CSV
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isLoading ? "Action in progress..." : (spotifySongs.length === 0 && youtubeSongs.length === 0) ? "Load at least one playlist to export data" : "Export data to CSV"}
+                  </TooltipContent>
+                </Tooltip>
               </CardContent>
             </Card>
           </div>

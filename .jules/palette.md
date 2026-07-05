@@ -9,3 +9,7 @@
 ## 2026-07-04 - [Clearable Input Fields for Long Strings]
 **Learning:** When users are expected to paste or edit long strings (such as URLs), having to manually select and delete the text is tedious. Providing a quick "clear" button inside the input field significantly reduces friction and improves usability.
 **Action:** Always consider adding a clear button (e.g., an 'X' icon) to text inputs that frequently handle long values. Ensure the button is only visible when the input has a value, has proper padding to prevent text overlap, and is accessible (using `aria-label`, `type="button"`, and keyboard focus styling).
+
+## 2026-07-05 - [Accessible Tooltips on Disabled Buttons]
+**Learning:** Native `<button disabled>` elements (or components resolving to them, like Radix UI/Shadcn buttons) have `pointer-events: none` applied by default. This prevents hover and focus events from firing, which breaks tooltips attached directly to the disabled button.
+**Action:** When adding a tooltip to a disabled button, wrap the button in a `<div>` or `<span>` with `tabIndex={0}` and any necessary layout classes (e.g., `w-full`, focus ring classes). Make sure to pass `asChild` to the `<TooltipTrigger>` to attach the event listeners to the wrapper, enabling the tooltip to show for both mouse hover and keyboard focus even when the inner button is disabled.
