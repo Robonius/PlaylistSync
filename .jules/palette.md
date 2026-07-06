@@ -13,3 +13,11 @@
 ## 2026-07-05 - [Accessible Tooltips on Disabled Buttons]
 **Learning:** Native `<button disabled>` elements (or components resolving to them, like Radix UI/Shadcn buttons) have `pointer-events: none` applied by default. This prevents hover and focus events from firing, which breaks tooltips attached directly to the disabled button.
 **Action:** When adding a tooltip to a disabled button, wrap the button in a `<div>` or `<span>` with `tabIndex={0}` and any necessary layout classes (e.g., `w-full`, focus ring classes). Make sure to pass `asChild` to the `<TooltipTrigger>` to attach the event listeners to the wrapper, enabling the tooltip to show for both mouse hover and keyboard focus even when the inner button is disabled.
+
+## 2026-10-24 - [Native Form Submission for Keyboard Accessibility]
+**Learning:** Relying solely on `onClick` for form submission buttons forces keyboard users to manually tab to the button instead of hitting Enter. Wrapping inputs and the primary action button in a standard `<form>` restores native keyboard submission behaviors.
+**Action:** Always wrap logical groups of inputs and their submission button in a `<form>` with an `onSubmit` handler, even in Single Page Applications, to preserve native Enter key functionality.
+
+## 2026-10-24 - [Semantic Meaning for Visual Status Indicators]
+**Learning:** Purely visual status indicators (like colored dots in tables) are completely ignored by screen readers, creating an information gap for visually impaired users.
+**Action:** Always add semantic meaning to visual-only indicators by either including a `title`/`aria-label` attribute or embedding a screen-reader-only text element (e.g., `<span className="sr-only">Status</span>`) inside the visual component.
