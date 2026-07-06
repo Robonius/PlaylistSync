@@ -261,42 +261,44 @@ export default function IndexContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
-                <div className="space-y-4">
-                  <InputField
-                    label="Spotify Playlist URL"
-                    value={spotifyUrl}
-                    onChange={setSpotifyUrl}
-                    placeholder="https://open.spotify.com/playlist/..."
-                    required
-                  />
-                  <InputField
-                    label="YouTube Playlist URL"
-                    value={youtubeUrl}
-                    onChange={setYoutubeUrl}
-                    placeholder="https://www.youtube.com/playlist?list=..."
-                    required
-                  />
-                </div>
+                <form onSubmit={(e) => { e.preventDefault(); handleSync(); }}>
+                  <div className="space-y-4">
+                    <InputField
+                      label="Spotify Playlist URL"
+                      value={spotifyUrl}
+                      onChange={setSpotifyUrl}
+                      placeholder="https://open.spotify.com/playlist/..."
+                      required
+                    />
+                    <InputField
+                      label="YouTube Playlist URL"
+                      value={youtubeUrl}
+                      onChange={setYoutubeUrl}
+                      placeholder="https://www.youtube.com/playlist?list=..."
+                      required
+                    />
+                  </div>
 
-                <div className="pt-2">
-                  <Button
-                    className="w-full rounded-none h-12 uppercase font-black tracking-widest text-xs group relative overflow-hidden"
-                    disabled={isLoading}
-                    onClick={handleSync}
-                  >
-                    {isSyncing ? (
-                      <>
-                        <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
-                        Executing Sync...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCcw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
-                        Execute Sync Protocol
-                      </>
-                    )}
-                  </Button>
-                </div>
+                  <div className="pt-6">
+                    <Button
+                      type="submit"
+                      className="w-full rounded-none h-12 uppercase font-black tracking-widest text-xs group relative overflow-hidden"
+                      disabled={isLoading}
+                    >
+                      {isSyncing ? (
+                        <>
+                          <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
+                          Executing Sync...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCcw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
+                          Execute Sync Protocol
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
               </CardContent>
             </Card>
 
@@ -445,7 +447,7 @@ export default function IndexContent() {
                                         {isUnique ? (
                                           <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
                                         ) : (
-                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
+                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" title="Common track"><span className="sr-only">Common</span></div>
                                         )}
                                       </TableCell>
                                     </TableRow>
@@ -502,7 +504,7 @@ export default function IndexContent() {
                                         {isUnique ? (
                                           <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
                                         ) : (
-                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" />
+                                          <div className="h-1.5 w-1.5 rounded-full bg-border inline-block" title="Common track"><span className="sr-only">Common</span></div>
                                         )}
                                       </TableCell>
                                     </TableRow>
