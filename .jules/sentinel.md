@@ -59,3 +59,8 @@ When interacting with OAuth token endpoints for Spotify and Google, strict paylo
 ## SSRF and Token Leakage via API Pagination
 *   **Vulnerability:** When handling paginated responses from external APIs (like Spotify), directly using the provided `next` URL in subsequent requests without validation can lead to Server-Side Request Forgery (SSRF) and token leakage. If the initial response is manipulated or the upstream API is compromised, the application might send requests (including sensitive Bearer tokens) to an attacker-controlled domain.
 *   **Prevention:** Always validate next-page URLs returned from external APIs before using them. Ensure they start with the expected base URL (e.g., `if (!url.startsWith('https://api.spotify.com/')) { break; }`).
+
+## 2025-02-27 - [Security] Validate API Payloads and Query Parameters
+**Vulnerability:** API routes parsing POST payloads and GET query parameters (`youtube/playlist`, `youtube/playlist/items`, `youtube/search`) lacked length constraints and explicit type checking. Attackers could theoretically send excessively long strings or incorrect types, leading to backend parsing issues, API errors with external services, or resource exhaustion.
+**Learning:** Always validate both the type and maximum length of string parameters when parsing user input from `request.json()` or query parameters before processing them or forwarding them to external APIs. Unbounded input sizes open vectors for DoS and trigger poorly handled edge cases in third-party services.
+**Prevention:** Implement strict explicit validations (e.g., `typeof val === 'string'`, `.length < MAX`, regex patterns) directly at the beginning of API route handlers.

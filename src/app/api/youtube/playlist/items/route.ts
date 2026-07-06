@@ -3,7 +3,26 @@ import { getGoogleToken } from '@/lib/backend-auth';
 import axios from 'axios';
 
 export async function POST(request: NextRequest) {
-  const { playlistId, videoId } = await request.json();
+  let playlistId: string;
+  let videoId: string;
+
+  try {
+    const body = await request.json();
+    playlistId = body.playlistId;
+    videoId = body.videoId;
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+  }
+
+  // Security: Validate playlistId and videoId format
+  if (!playlistId || typeof playlistId !== 'string' || !/^[a-zA-Z0-9_-]{10,40}$/.test(playlistId)) {
+    return NextResponse.json({ error: 'Invalid playlistId format' }, { status: 400 });
+  }
+
+  if (!videoId || typeof videoId !== 'string' || !/^[a-zA-Z0-9_-]{10,20}$/.test(videoId)) {
+    return NextResponse.json({ error: 'Invalid videoId format' }, { status: 400 });
+  }
+
   const { token, refreshed, newData } = await getGoogleToken();
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
