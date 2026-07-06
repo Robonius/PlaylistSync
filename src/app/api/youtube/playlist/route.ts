@@ -71,7 +71,25 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { title, description } = await request.json();
+  let title: string;
+  let description: string | undefined;
+
+  try {
+    const body = await request.json();
+    title = body.title;
+    description = body.description;
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+  }
+
+  // Security: Validate inputs
+  if (typeof title !== 'string' || title.trim().length === 0 || title.length > 150) {
+    return NextResponse.json({ error: 'Invalid or missing title' }, { status: 400 });
+  }
+
+  if (description !== undefined && (typeof description !== 'string' || description.length > 5000)) {
+    return NextResponse.json({ error: 'Invalid description' }, { status: 400 });
+  }
 
   const { token, refreshed, newData, clearCookies } = await getGoogleToken();
 
