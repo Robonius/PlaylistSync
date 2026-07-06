@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
 
   try {
-    let allItems: any[] = [];
+    let allItems: Record<string, unknown>[] = [];
     let nextPageToken = '';
     do {
       const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
       nextPageToken = response.data.nextPageToken;
     } while (nextPageToken);
     const tracks = allItems.map(item => ({
-      title: item.snippet?.title || 'Unknown',
-      artist: item.snippet?.videoOwnerChannelTitle || 'Unknown',
+      title: (item.snippet as Record<string, any>)?.title || 'Unknown',
+      artist: (item.snippet as Record<string, any>)?.videoOwnerChannelTitle || 'Unknown',
       album: 'YouTube Video',
-      platformId: item.contentDetails?.videoId || '',
+      platformId: (item.contentDetails as Record<string, any>)?.videoId || '',
     }));
     const response = NextResponse.json(tracks);
 
@@ -59,8 +59,8 @@ export async function GET(request: NextRequest) {
       }
     }
     return response;
-  } catch (error: any) {
-    const status = error.response?.status || 500;
+  } catch (error: unknown) {
+    const status = axios.isAxiosError(error) ? error.response?.status || 500 : 500;
     const response = NextResponse.json({ error: 'Error fetching YouTube playlist' }, { status });
     if (status === 401) {
       response.cookies.delete('google_access_token');
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
       }
     }
     return nextResponse;
-  } catch (error: any) {
-    const status = error.response?.status || 500;
+  } catch (error: unknown) {
+    const status = axios.isAxiosError(error) ? error.response?.status || 500 : 500;
     const response = NextResponse.json({ error: 'Error creating YouTube playlist' }, { status });
     if (status === 401) {
       response.cookies.delete('google_access_token');

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   try {
     let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
-    let allItems: any[] = [];
+    let allItems: Record<string, unknown>[] = [];
     while (url) {
       // Security: Prevent SSRF and Token Leakage by validating pagination URL
       if (!url.startsWith('https://api.spotify.com/')) {
@@ -42,10 +42,10 @@ export async function GET(request: NextRequest) {
       url = response.data.next;
     }
     const tracks = allItems.map(item => ({
-      title: item.track?.name || 'Unknown',
-      artist: item.track?.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
-      album: item.track?.album?.name || 'Unknown',
-      platformId: item.track?.id || '',
+      title: (item.track as Record<string, any>)?.name || 'Unknown',
+      artist: (item.track as Record<string, any>)?.artists?.map((a: Record<string, unknown>) => a.name).join(', ') || 'Unknown',
+      album: (item.track as Record<string, any>)?.album?.name || 'Unknown',
+      platformId: (item.track as Record<string, any>)?.id || '',
     }));
     const response = NextResponse.json(tracks);
 
@@ -64,8 +64,8 @@ export async function GET(request: NextRequest) {
       }
     }
     return response;
-  } catch (error: any) {
-    const status = error.response?.status || 500;
+  } catch (error: unknown) {
+    const status = axios.isAxiosError(error) ? error.response?.status || 500 : 500;
     const response = NextResponse.json({ error: 'Error fetching Spotify playlist' }, { status });
     if (status === 401) {
       response.cookies.delete('spotify_access_token');
