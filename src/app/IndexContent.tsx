@@ -149,7 +149,7 @@ export default function IndexContent() {
       setComparisonResults(results);
       showSuccess('Sync complete!');
     } catch (error: unknown) {
-      if (error.status === 401) {
+      if (typeof error === 'object' && error !== null && 'status' in error && (error as Record<string, unknown>).status === 401) {
         showError('Unauthorized: Please connect your account first');
         checkAuthStatus().then(setAuthStatus);
       } else {
@@ -180,7 +180,7 @@ export default function IndexContent() {
       }
       showSuccess('Transfer to YouTube complete!');
     } catch (error: unknown) {
-      if (error.status === 401) {
+      if (typeof error === 'object' && error !== null && 'status' in error && (error as Record<string, unknown>).status === 401) {
         showError('Unauthorized: Please connect your account first');
         checkAuthStatus().then(setAuthStatus);
       } else {

@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   if (!playlistId) return NextResponse.json({ error: 'Missing playlistId' }, { status: 400 });
 
   // Security: Validate playlistId format to prevent SSRF / Path Traversal
-  if (!/^[a-zA-Z0-9]+$/.test(playlistId)) {
+  if (!/^[a-zA-Z0-9]{22}$/.test(playlistId)) {
     return NextResponse.json({ error: 'Invalid playlistId format' }, { status: 400 });
   }
 
@@ -29,6 +29,12 @@ export async function GET(request: NextRequest) {
     let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
     let allItems: Record<string, unknown>[] = [];
     while (url) {
+      // Security: Prevent SSRF and Token Leakage by validating pagination URL
+      if (!url.startsWith('https://api.spotify.com/')) {
+        console.error('Security Warning: Invalid pagination URL received from Spotify API:', url);
+        break;
+      }
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
