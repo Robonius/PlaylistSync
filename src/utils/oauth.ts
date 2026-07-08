@@ -4,10 +4,19 @@
 
 const generateRandomString = (length: number) => {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  const values = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(values)
-    .map((x) => possible[x % possible.length])
-    .join('');
+  let result = '';
+  const maxValidValue = Math.floor(256 / possible.length) * possible.length;
+
+  while (result.length < length) {
+    const values = crypto.getRandomValues(new Uint8Array(length - result.length));
+    for (let i = 0; i < values.length; i++) {
+      if (values[i] < maxValidValue) {
+        result += possible[values[i] % possible.length];
+        if (result.length === length) break;
+      }
+    }
+  }
+  return result;
 };
 
 const sha256 = async (plain: string) => {
