@@ -54,12 +54,13 @@ export default function ApiStatusPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
                       <span className="font-bold uppercase text-sm tracking-tight">Spotify Web API</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-mono text-muted-foreground">Latency: 42ms</span>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span className="sr-only">Status: Operational</span>
                     </div>
                   </div>
                 </CardContent>
@@ -69,12 +70,13 @@ export default function ApiStatusPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
                       <span className="font-bold uppercase text-sm tracking-tight">YouTube Data API v3</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-mono text-muted-foreground">Latency: 89ms</span>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span className="sr-only">Status: Operational</span>
                     </div>
                   </div>
                 </CardContent>
@@ -84,12 +86,13 @@ export default function ApiStatusPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
                       <span className="font-bold uppercase text-sm tracking-tight">RoboLab Discovery Service</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-mono text-muted-foreground">Latency: 12ms</span>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span className="sr-only">Status: Operational</span>
                     </div>
                   </div>
                 </CardContent>
@@ -99,7 +102,7 @@ export default function ApiStatusPage() {
             <div className="space-y-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Recent Incidents</h3>
               <div className="border-2 border-dashed p-12 flex flex-col items-center justify-center text-muted-foreground space-y-2">
-                <CheckCircle2 className="h-8 w-8 opacity-20" />
+                <CheckCircle2 className="h-8 w-8 opacity-20" aria-hidden="true" />
                 <p className="text-[10px] uppercase font-bold tracking-widest">No incidents reported in the last 72 hours</p>
               </div>
             </div>

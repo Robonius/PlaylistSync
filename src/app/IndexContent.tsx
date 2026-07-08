@@ -222,7 +222,7 @@ export default function IndexContent() {
             <div className="flex flex-col items-end">
               <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">System Status</span>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
                 <span className="text-[10px] font-mono uppercase">Operational</span>
               </div>
             </div>
