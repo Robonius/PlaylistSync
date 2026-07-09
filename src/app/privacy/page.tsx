@@ -3,6 +3,7 @@ import React from 'react';
 import Link from "next/link";
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Shield, Lock, EyeOff, Database } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function PrivacyPage() {
   return (
@@ -10,12 +11,19 @@ export default function PrivacyPage() {
       <div className="max-w-4xl mx-auto space-y-12">
         <header className="flex items-center justify-between border-b-2 border-primary/20 pb-6">
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="outline" size="icon" className="rounded-none border-2 h-10 w-10">
-                <ChevronLeft className="h-5 w-5" />
-                <span className="sr-only">Back to Command Center</span>
-              </Button>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-none border-2 h-10 w-10" asChild>
+                  <Link href="/">
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                    <span className="sr-only">Back to Command Center</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Back to Command Center</p>
+              </TooltipContent>
+            </Tooltip>
             <div className="flex items-center gap-3">
               <div className="bg-primary p-1.5 rounded-none rotate-45">
                 <Shield className="h-5 w-5 text-primary-foreground -rotate-45" />

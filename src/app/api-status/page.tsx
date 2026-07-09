@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, Activity, CheckCircle2, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function ApiStatusPage() {
   const [lastCheck, setLastCheck] = useState(new Date());
@@ -14,12 +15,19 @@ export default function ApiStatusPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="outline" size="icon" className="rounded-none border-2">
-                <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Back to Home</span>
-              </Button>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-none border-2" asChild>
+                  <Link href="/">
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                    <span className="sr-only">Back to Home</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Back to Home</p>
+              </TooltipContent>
+            </Tooltip>
             <div className="flex items-center gap-2">
               <div className="bg-primary p-1">
                 <Activity className="h-5 w-5 text-primary-foreground" />

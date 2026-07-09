@@ -21,3 +21,6 @@
 ## 2026-10-24 - [Semantic Meaning for Visual Status Indicators]
 **Learning:** Purely visual status indicators (like colored dots in tables) are completely ignored by screen readers, creating an information gap for visually impaired users.
 **Action:** Always add semantic meaning to visual-only indicators by either including a `title`/`aria-label` attribute or embedding a screen-reader-only text element (e.g., `<span className="sr-only">Status</span>`) inside the visual component.
+## 2024-02-17 - Fix Shadcn `<Button>` and Next.js `<Link>` Nesting
+**Learning:** Placing a Next.js `<Link>` element around or inside a standard Shadcn `<Button>` component can result in invalid HTML nesting (e.g., `<button>` inside `<a>`) which is poor for both standard compliance and screen readers. Additionally, icon-only buttons need visible tooltips alongside their `sr-only` text or `aria-label` for mouse users, and internal SVGs should have `aria-hidden="true"`.
+**Action:** Use Shadcn UI's `asChild` prop on the `<Button>` component, then place the Next.js `<Link>` immediately inside it. Wrap the entire structure inside a `<Tooltip>` system when the button only contains an icon.
