@@ -268,16 +268,17 @@ export default function IndexContent() {
                       value={spotifyUrl}
                       onChange={setSpotifyUrl}
                       placeholder="https://open.spotify.com/playlist/..."
-                      required
                     />
                     <InputField
                       label="YouTube Playlist URL"
                       value={youtubeUrl}
                       onChange={setYoutubeUrl}
                       placeholder="https://www.youtube.com/playlist?list=..."
-                      required
                     />
                   </div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-2">
+                    * Provide at least one URL to execute sync
+                  </p>
 
                   <div className="pt-6">
                     <Button
