@@ -156,7 +156,7 @@ export default function IndexContent() {
           showError('Sync failed. Please check the logs.');
       }
         // Standardized error logging to prevent header leakage
-        console.error('Sync error:', error.message || 'Unknown error');
+        console.error('Sync error:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsSyncing(false);
     }
@@ -187,7 +187,7 @@ export default function IndexContent() {
           showError('Transfer failed. Please check the logs.');
       }
         // Standardized error logging to prevent header leakage
-        console.error('Transfer error:', error.message || 'Unknown error');
+        console.error('Transfer error:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsTransferring(false);
     }
