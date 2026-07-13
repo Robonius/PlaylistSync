@@ -12,12 +12,18 @@ export async function GET(request: NextRequest) {
   const storedState = cookieStore.get('google_auth_state')?.value;
   const codeVerifier = cookieStore.get('google_code_verifier')?.value;
 
+  const clearStateCookies = (response: NextResponse) => {
+    response.cookies.delete('google_auth_state');
+    response.cookies.delete('google_code_verifier');
+    return response;
+  };
+
   if (error) {
-    return NextResponse.redirect(new URL('/?error=' + error, request.url));
+    return clearStateCookies(NextResponse.redirect(new URL('/?error=' + error, request.url)));
   }
 
   if (!code || !state || state !== storedState || !codeVerifier) {
-    return NextResponse.redirect(new URL('/?error=invalid_auth_session', request.url));
+    return clearStateCookies(NextResponse.redirect(new URL('/?error=invalid_auth_session', request.url)));
   }
 
   try {
@@ -29,7 +35,6 @@ export async function GET(request: NextRequest) {
 
     if (data.access_token) {
       const response = NextResponse.redirect(new URL('/', request.url));
-
 
       const expiresAt = Date.now() + (data.expires_in * 1000);
       response.cookies.set('google_access_token', data.access_token, {
@@ -47,7 +52,6 @@ export async function GET(request: NextRequest) {
         path: '/',
       });
 
-
       if (data.refresh_token) {
         response.cookies.set('google_refresh_token', data.refresh_token, {
           httpOnly: true,
@@ -58,15 +62,12 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      response.cookies.delete('google_auth_state');
-      response.cookies.delete('google_code_verifier');
-
-      return response;
+      return clearStateCookies(response);
     } else {
-      return NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url));
+      return clearStateCookies(NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url)));
     }
   } catch (err) {
     console.error('Google token exchange error:', err);
-    return NextResponse.redirect(new URL('/?error=server_error', request.url));
+    return clearStateCookies(NextResponse.redirect(new URL('/?error=server_error', request.url)));
   }
 }
