@@ -281,23 +281,35 @@ export default function IndexContent() {
                   </p>
 
                   <div className="pt-6">
-                    <Button
-                      type="submit"
-                      className="w-full rounded-none h-12 uppercase font-black tracking-widest text-xs group relative overflow-hidden"
-                      disabled={isLoading}
-                    >
-                      {isSyncing ? (
-                        <>
-                          <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
-                          Executing Sync...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCcw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
-                          Execute Sync Protocol
-                        </>
-                      )}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          tabIndex={isLoading || (!spotifyUrl && !youtubeUrl) ? 0 : -1}
+                          className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-none"
+                        >
+                          <Button
+                            type="submit"
+                            className="w-full rounded-none h-12 uppercase font-black tracking-widest text-xs group relative overflow-hidden"
+                            disabled={isLoading || (!spotifyUrl && !youtubeUrl)}
+                          >
+                            {isSyncing ? (
+                              <>
+                                <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
+                                Executing Sync...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCcw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
+                                Execute Sync Protocol
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isLoading ? "Sync in progress..." : (!spotifyUrl && !youtubeUrl) ? "Enter at least one playlist URL to sync" : "Execute Sync Protocol"}
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </form>
               </CardContent>
