@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
     do {
       const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
         params: { part: 'snippet,contentDetails', maxResults: 50, playlistId: playlistId, pageToken: nextPageToken },
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000,
       });
       allItems = allItems.concat(response.data.items);
       nextPageToken = response.data.nextPageToken;
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
     }, {
       params: { part: 'snippet,status' },
       headers: { Authorization: `Bearer ${token}` },
+      timeout: 10000,
     });
     const nextResponse = NextResponse.json({ playlistId: response.data.id });
 

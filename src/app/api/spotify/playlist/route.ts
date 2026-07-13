@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
 
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000,
       });
       allItems = allItems.concat(response.data.items);
       url = response.data.next;

@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     }, {
       params: { part: 'snippet' },
       headers: { Authorization: `Bearer ${token}` },
+      timeout: 10000,
     });
     const nextResponse = NextResponse.json({ success: true });
     if (refreshed && newData) {
