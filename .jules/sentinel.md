@@ -68,3 +68,7 @@ When interacting with OAuth token endpoints for Spotify and Google, strict paylo
 **Vulnerability:** The `generateRandomString` function used for cryptographic strings (PKCE code_verifier, OAuth state) had a modulo bias vulnerability. It used `x % possible.length` to pick characters, causing a non-uniform distribution of characters because 256 is not evenly divisible by 66.
 **Learning:** Even when using a secure random number generator like `crypto.getRandomValues()`, mapping those values to a character set using simple modulo arithmetic introduces a bias, weakening the randomness.
 **Prevention:** Always use rejection sampling when mapping uniformly distributed random values to an arbitrary length character set that is not a power of 2 factor of the random value space.
+## 2023-10-27 - [Secure URL Construction in Route Handlers]
+**Vulnerability:** Parameter Injection/XSS risk in Next.js Auth Callbacks via unsafe string concatenation of error query parameters (e.g. `new URL('/?error=' + error, request.url)`).
+**Learning:** Concatenating user-controlled input directly into a URL string allows for the injection of additional query parameters or hash fragments if the input isn't properly escaped.
+**Prevention:** Always use the `URL` object and `URLSearchParams.set()` to securely append query parameters, which automatically handles proper URL encoding and prevents injection attacks.
