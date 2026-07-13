@@ -68,7 +68,7 @@ When interacting with OAuth token endpoints for Spotify and Google, strict paylo
 **Vulnerability:** The `generateRandomString` function used for cryptographic strings (PKCE code_verifier, OAuth state) had a modulo bias vulnerability. It used `x % possible.length` to pick characters, causing a non-uniform distribution of characters because 256 is not evenly divisible by 66.
 **Learning:** Even when using a secure random number generator like `crypto.getRandomValues()`, mapping those values to a character set using simple modulo arithmetic introduces a bias, weakening the randomness.
 **Prevention:** Always use rejection sampling when mapping uniformly distributed random values to an arbitrary length character set that is not a power of 2 factor of the random value space.
-## 2025-02-18 - Missing External API Timeouts
-**Vulnerability:** External API requests (using `axios` and `fetch` to Spotify and YouTube endpoints) lacked explicit timeout configurations.
-**Learning:** This exposes the backend to resource exhaustion (Denial of Service) if third-party APIs hang indefinitely, as connections will remain open and tie up server resources.
-**Prevention:** Always configure an explicit timeout (e.g., 10 seconds) on all external network requests, using `timeout: 10000` for `axios` or `signal: AbortSignal.timeout(10000)` for `fetch`.
+## 2025-02-27 - [Security] Prevent CSRF via OAuth State Leakage
+**Vulnerability:** The application was only deleting the `spotify_auth_state`, `google_auth_state`, and their corresponding `code_verifier` cookies upon a successful token exchange. If an error occurred (e.g., user cancellation, invalid state, server error), these single-use cookies were left active in the user's browser until their expiration time.
+**Learning:** Failing to invalidate temporary OAuth state and PKCE verifiers on error paths leaves a prolonged window for Cross-Site Request Forgery (CSRF) or state fixation attacks, where a stale state could potentially be reused.
+**Prevention:** Always implement cookie cleanup for temporary OAuth state parameters in *all* return paths (including early error returns and `catch` blocks) within the callback handler to ensure they are strictly single-use.
