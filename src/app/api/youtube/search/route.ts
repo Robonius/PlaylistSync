@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
   try {
     const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
       params: { part: 'snippet', q, type: 'video', videoCategoryId: '10', maxResults: 1 },
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 10000
     });
     const items = response.data.items;
     const videoId = items.length > 0 ? items[0].id.videoId : null;

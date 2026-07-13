@@ -122,6 +122,7 @@ export const exchangeSpotifyCodeForToken = async (clientId: string, clientSecret
       'Authorization': 'Basic ' + authHeader
     },
     body: params.toString(),
+    signal: AbortSignal.timeout(10000),
   });
 
   return response.json();
@@ -143,6 +144,7 @@ export const exchangeGoogleCodeForToken = async (clientId: string, clientSecret:
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: params.toString(),
+    signal: AbortSignal.timeout(10000),
   });
 
   return response.json();
@@ -163,6 +165,7 @@ export const refreshSpotifyToken = async (clientId: string, clientSecret: string
       'Authorization': 'Basic ' + authHeader
     },
     body: params.toString(),
+    signal: AbortSignal.timeout(10000),
   });
 
   return response.json();
@@ -182,6 +185,7 @@ export const refreshGoogleToken = async (clientId: string, clientSecret: string,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: params.toString(),
+    signal: AbortSignal.timeout(10000),
   });
 
   return response.json();
