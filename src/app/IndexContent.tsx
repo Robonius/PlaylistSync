@@ -251,7 +251,7 @@ export default function IndexContent() {
         </div>
       </header>
 
-      <main className="flex-grow container px-4 py-8 mx-auto max-w-6xl">
+      <main id="main-content" tabIndex={-1} className="flex-grow container px-4 py-8 mx-auto max-w-6xl focus-visible:outline-none">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 space-y-6">
             <Card className="rounded-none border-2 shadow-[4px_4px_0px_0px_rgba(var(--primary-rgb),0.1)]">
