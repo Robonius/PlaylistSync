@@ -19,11 +19,15 @@ export async function GET(request: NextRequest) {
   };
 
   if (error) {
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=' + error, request.url)));
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', error);
+    return clearStateCookies(NextResponse.redirect(errorUrl));
   }
 
   if (!code || !state || state !== storedState || !codeVerifier) {
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=invalid_auth_session', request.url)));
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', 'invalid_auth_session');
+    return clearStateCookies(NextResponse.redirect(errorUrl));
   }
 
   try {
@@ -64,10 +68,14 @@ export async function GET(request: NextRequest) {
 
       return clearStateCookies(response);
     } else {
-      return clearStateCookies(NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url)));
+      const errorUrl = new URL('/', request.url);
+      errorUrl.searchParams.set('error', 'token_exchange_failed');
+      return clearStateCookies(NextResponse.redirect(errorUrl));
     }
   } catch (err) {
     console.error('Google token exchange error:', err);
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=server_error', request.url)));
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', 'server_error');
+    return clearStateCookies(NextResponse.redirect(errorUrl));
   }
 }

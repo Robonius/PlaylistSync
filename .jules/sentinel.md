@@ -72,3 +72,8 @@ When interacting with OAuth token endpoints for Spotify and Google, strict paylo
 **Vulnerability:** The application was only deleting the `spotify_auth_state`, `google_auth_state`, and their corresponding `code_verifier` cookies upon a successful token exchange. If an error occurred (e.g., user cancellation, invalid state, server error), these single-use cookies were left active in the user's browser until their expiration time.
 **Learning:** Failing to invalidate temporary OAuth state and PKCE verifiers on error paths leaves a prolonged window for Cross-Site Request Forgery (CSRF) or state fixation attacks, where a stale state could potentially be reused.
 **Prevention:** Always implement cookie cleanup for temporary OAuth state parameters in *all* return paths (including early error returns and `catch` blocks) within the callback handler to ensure they are strictly single-use.
+
+## 2025-02-27 - [Security] Prevent Parameter Injection in OAuth Callbacks
+**Vulnerability:** The OAuth callback routes (`src/app/api/auth/callback/spotify/route.ts` and `src/app/api/auth/callback/google/route.ts`) were constructing redirect URLs using string concatenation (e.g., `new URL('/?error=' + error, request.url)`).
+**Learning:** If the `error` string returned by the OAuth provider (or manipulated by an attacker) contains unescaped special characters like `&` or `#`, it could lead to parameter injection or Cross-Site Scripting (XSS).
+**Prevention:** Always use the `URL` object and `URLSearchParams.set()` method to construct URLs with query parameters. This ensures that parameter values are safely URL-encoded and prevents injection vulnerabilities.
