@@ -205,6 +205,12 @@ export default function IndexContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary selection:text-primary-foreground">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:p-4 focus:bg-background focus:text-foreground focus:font-bold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+      >
+        Skip to main content
+      </a>
       <header className="border-b-2 border-primary/20 sticky top-0 z-50 bg-background/80 backdrop-blur-md">
         <div className="container flex items-center justify-between h-16 px-4 mx-auto">
           <div className="flex items-center gap-3">
@@ -251,7 +257,7 @@ export default function IndexContent() {
         </div>
       </header>
 
-      <main className="flex-grow container px-4 py-8 mx-auto max-w-6xl">
+      <main id="main-content" tabIndex={-1} className="flex-grow container px-4 py-8 mx-auto max-w-6xl focus-visible:outline-none">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 space-y-6">
             <Card className="rounded-none border-2 shadow-[4px_4px_0px_0px_rgba(var(--primary-rgb),0.1)]">
