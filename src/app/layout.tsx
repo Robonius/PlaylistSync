@@ -40,6 +40,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <RuntimeConfigProvider config={runtimeConfig}>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:bg-background focus:text-foreground focus:px-4 focus:py-2 focus:border focus:border-border"
+          >
+            Skip to main content
+          </a>
           <Providers>{children}</Providers>
         </RuntimeConfigProvider>
       </body>
