@@ -18,12 +18,18 @@ export async function GET(request: NextRequest) {
     return response;
   };
 
+  const createErrorRedirect = (errorCode: string) => {
+    const url = new URL('/', request.url);
+    url.searchParams.set('error', errorCode);
+    return clearStateCookies(NextResponse.redirect(url));
+  };
+
   if (error) {
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=' + error, request.url)));
+    return createErrorRedirect(error);
   }
 
   if (!code || !state || state !== storedState || !codeVerifier) {
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=invalid_auth_session', request.url)));
+    return createErrorRedirect('invalid_auth_session');
   }
 
   try {
@@ -64,10 +70,10 @@ export async function GET(request: NextRequest) {
 
       return clearStateCookies(response);
     } else {
-      return clearStateCookies(NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url)));
+      return createErrorRedirect('token_exchange_failed');
     }
   } catch (err) {
     console.error('Google token exchange error:', err);
-    return clearStateCookies(NextResponse.redirect(new URL('/?error=server_error', request.url)));
+    return createErrorRedirect('server_error');
   }
 }
