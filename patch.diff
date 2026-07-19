@@ -1,0 +1,24 @@
+--- src/app/IndexContent.tsx
++++ src/app/IndexContent.tsx
+@@ -460,8 +460,8 @@
+                                     const isUnique = spotifyUniqueIds.has(song.platformId);
+                                     return (
+                                     <TableRow key={i} className="group border-b last:border-0">
+-                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
+-                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
++                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate" title={song.title}>{song.title}</TableCell>
++                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate" title={song.artist}>{song.artist}</TableCell>
+                                       <TableCell className="py-2 text-right px-4">
+                                         {isUnique ? (
+                                           <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
+@@ -517,8 +517,8 @@
+                                     const isUnique = youtubeUniqueIds.has(song.platformId);
+                                     return (
+                                     <TableRow key={i} className="group border-b last:border-0">
+-                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate">{song.title}</TableCell>
+-                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate">{song.artist}</TableCell>
++                                      <TableCell className="py-2 text-[11px] font-medium leading-tight max-w-[200px] truncate" title={song.title}>{song.title}</TableCell>
++                                      <TableCell className="py-2 text-[10px] text-muted-foreground uppercase truncate" title={song.artist}>{song.artist}</TableCell>
+                                       <TableCell className="py-2 text-right px-4">
+                                         {isUnique ? (
+                                           <Badge className="bg-primary hover:bg-primary rounded-none text-[8px] h-4 px-1 uppercase">Unique</Badge>
