@@ -28,7 +28,14 @@ export async function GET(request: NextRequest) {
   try {
     let allItems: Record<string, unknown>[] = [];
     let nextPageToken = '';
+
+    // Security: Enforce a hard iteration limit to prevent resource exhaustion and DoS
+    const MAX_PAGES = 50;
+    let pageCount = 0;
+
     do {
+      pageCount++;
+
       const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
         params: { part: 'snippet,contentDetails', maxResults: 50, playlistId: playlistId, pageToken: nextPageToken },
         headers: { Authorization: `Bearer ${token}` },
@@ -36,7 +43,7 @@ export async function GET(request: NextRequest) {
       });
       allItems = allItems.concat(response.data.items);
       nextPageToken = response.data.nextPageToken;
-    } while (nextPageToken);
+    } while (nextPageToken && pageCount < MAX_PAGES);
     const tracks = allItems.map(item => ({
       title: (item.snippet as Record<string, any>)?.title || 'Unknown',
       artist: (item.snippet as Record<string, any>)?.videoOwnerChannelTitle || 'Unknown',
