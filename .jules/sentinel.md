@@ -77,3 +77,8 @@ When interacting with OAuth token endpoints for Spotify and Google, strict paylo
 **Vulnerability:** The OAuth callback routes (`src/app/api/auth/callback/spotify/route.ts` and `src/app/api/auth/callback/google/route.ts`) were constructing redirect URLs using string concatenation (e.g., `new URL('/?error=' + error, request.url)`).
 **Learning:** If the `error` string returned by the OAuth provider (or manipulated by an attacker) contains unescaped special characters like `&` or `#`, it could lead to parameter injection or Cross-Site Scripting (XSS).
 **Prevention:** Always use the `URL` object and `URLSearchParams.set()` method to construct URLs with query parameters. This ensures that parameter values are safely URL-encoded and prevents injection vulnerabilities.
+
+## 2025-02-27 - [Security] Prevent Unbounded Pagination and Resource Exhaustion
+**Vulnerability:** The backend endpoints that fetched paginated data from Spotify and YouTube (`src/app/api/spotify/playlist/route.ts` and `src/app/api/youtube/playlist/route.ts`) were using unbounded `while (url)` and `do { ... } while (nextPageToken)` loops. An attacker could potentially provide a playlist ID containing an abnormally large number of items, causing the server to fetch indefinitely until out of memory or exhausting the external API rate limit, leading to Denial of Service (DoS).
+**Learning:** External API responses and their pagination tokens should never be trusted as the sole terminator for an unbound loop. A hard limit is required to protect the server's own resources.
+**Prevention:** Always enforce a hard iteration limit (e.g., `const MAX_PAGES = 50; let pageCount = 0;`) when executing sequential requests to fetch paginated data.
