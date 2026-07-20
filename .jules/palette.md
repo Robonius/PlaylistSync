@@ -4,3 +4,6 @@
 ## 2025-02-18 - Skip-to-content links in Next.js Apps
 **Learning:** When adding a "skip to main content" link to improve keyboard accessibility (allowing users to bypass repetitive navigation), it's crucial that the target container (e.g., `<main id="main-content">`) receives programmatic focus without breaking visual flow.
 **Action:** Always ensure the target container has `tabIndex={-1}` (so it doesn't enter the normal tab sequence but can receive focus from the anchor link) and a class like `focus-visible:outline-none` (so it doesn't display an unexpected focus ring when jumped to).
+## 2025-02-18 - Add native title attribute to CSS-truncated text
+**Learning:** When applying CSS text truncation (e.g., `text-overflow: ellipsis` or Tailwind's `truncate`) to strings that might be cut off, users lose access to the full content.
+**Action:** Always provide a native `title` attribute matching the full text on the truncated element to ensure the content remains accessible via tooltips on hover.
