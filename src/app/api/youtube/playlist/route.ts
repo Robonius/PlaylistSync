@@ -28,7 +28,17 @@ export async function GET(request: NextRequest) {
   try {
     let allItems: Record<string, unknown>[] = [];
     let nextPageToken = '';
+    let pageCount = 0;
+    const MAX_PAGES = 50;
+
     do {
+      // Security: Enforce a hard iteration limit to prevent resource exhaustion (DoS)
+      if (pageCount >= MAX_PAGES) {
+        console.warn(`Security Warning: Max pagination limit (${MAX_PAGES}) reached for YouTube playlist ${playlistId}`);
+        break;
+      }
+      pageCount++;
+
       const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
         params: { part: 'snippet,contentDetails', maxResults: 50, playlistId: playlistId, pageToken: nextPageToken },
         headers: { Authorization: `Bearer ${token}` },

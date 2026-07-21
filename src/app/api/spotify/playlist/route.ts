@@ -28,7 +28,17 @@ export async function GET(request: NextRequest) {
   try {
     let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
     let allItems: Record<string, unknown>[] = [];
+    let pageCount = 0;
+    const MAX_PAGES = 50;
+
     while (url) {
+      // Security: Enforce a hard iteration limit to prevent resource exhaustion (DoS)
+      if (pageCount >= MAX_PAGES) {
+        console.warn(`Security Warning: Max pagination limit (${MAX_PAGES}) reached for Spotify playlist ${playlistId}`);
+        break;
+      }
+      pageCount++;
+
       // Security: Prevent SSRF and Token Leakage by validating pagination URL
       if (!url.startsWith('https://api.spotify.com/')) {
         console.error('Security Warning: Invalid pagination URL received from Spotify API:', url);
