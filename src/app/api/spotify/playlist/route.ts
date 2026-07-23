@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
   try {
     let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
     let allItems: Record<string, unknown>[] = [];
-    while (url) {
+    let pageCount = 0;
+    const MAX_PAGES = 50;
+    while (url && pageCount < MAX_PAGES) {
+      pageCount++;
       // Security: Prevent SSRF and Token Leakage by validating pagination URL
       if (!url.startsWith('https://api.spotify.com/')) {
         console.error('Security Warning: Invalid pagination URL received from Spotify API:', url);
