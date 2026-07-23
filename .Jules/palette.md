@@ -4,3 +4,6 @@
 ## 2024-03-24 - Add skip-to-content link for keyboard accessibility
 **Learning:** Adding a "skip to content" link requires the target container (like `<main>`) to have `tabIndex={-1}` so it can receive programmatic focus without interfering with regular tab order. Additionally, applying `focus-visible:outline-none` prevents an unsightly default focus ring from appearing around the entire page content when the skip link is used in Next.js applications.
 **Action:** When implementing skip links, always ensure the target container is programmatically focusable (`tabIndex={-1}`) and visually clean (`focus-visible:outline-none`).
+## 2024-05-24 - Accessible Truncated Text
+**Learning:** When applying CSS text truncation (e.g., `text-overflow: ellipsis` or Tailwind's `truncate`), the visually hidden text becomes inaccessible.
+**Action:** Always provide a native `title` attribute matching the full text to ensure the content remains accessible via tooltips for hover users.
